@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="title">Service Sathi</h1>
+
+<div class="login-box">
+
+<form action="/register" method="POST" class="login-form">
+
+        <label><strong>Register As:</strong></label>
+    <div class="role-select" id="radio">
+        <input type="radio" name="role" value="user" checked onclick="toggleRoleFields(false)"> Customer
+        <input type="radio" name="role" value="seller" onclick="toggleRoleFields(true)"> Service Provider
+    </div>
+
+    <label>Username *</label>
+    <input type="text" name="username" placeholder="Username" required>
+
+    <label>Full Name *</label>
+    <input type="text" name="full_name" placeholder="Full Name" required>
+
+    <label>Email *</label>
+    <input type="email" name="email" placeholder="Email" required>
+
+    <label>Password *</label>
+    <input type="password" name="password" placeholder="Password" required>
+
+    <label>Phone *</label>
+    <input type="text" name="phone" placeholder="03001234567" required>
+
+    <label>CNIC *</label>
+    <input type="text" name="cnic" placeholder="13 digits" required>
+
+    <label>DOB *</label>
+    <input type="date" name="dob" required>
+
+    <label>Address *</label>
+    <textarea name="address" placeholder="Residential Address" required></textarea>
+
+    <div id="seller-fields" class="seller-box" style="display:none;">
+        <label><strong>Professional Bio</strong></label>
+        <textarea id="bio-field" name="bio" placeholder="Describe your expertise"></textarea>
+    </div>
+
+    <button type="submit" class="login-btn">Sign Up</button>
+
+</form>
+
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+
+</div>
+
+<script>
+function toggleRoleFields(isSeller) {
+    const sellerDiv = document.getElementById('seller-fields');
+    const bioInput = document.getElementById('bio-field');
+
+    if (isSeller) {
+        sellerDiv.style.display = 'block';
+        bioInput.required = true;
+    } else {
+        sellerDiv.style.display = 'none';
+        bioInput.required = false;
+        bioInput.value = "";
+    }
+}
+</script>
+
+{% endblock %}

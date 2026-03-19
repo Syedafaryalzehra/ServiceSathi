@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Service Sathi{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap" rel="stylesheet">
+    <style>
+        nav { background: #d8c9f0; padding: 1rem; color: white; display: flex; gap: 20px; }
+        nav a { color: rgb(0, 0, 0); text-decoration: none; font-weight: bold; }
+        footer { margin-top: 50px; text-align: center; font-size: 0.8rem; color: #666; }
+        .container { padding: 20px; max-width: 1200px; margin: auto; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo"><strong>Service Sathi.pk</strong></div>
+
+    <div class="nav-links">
+        <a class="logolinks" href="/">Home</a>
+
+       {% if session.loggedin %}
+    
+    {% if session.role != 'admin' %}
+        <a class="logolinks" href="/dashboard">Profile</a>
+    {% else %}
+        <a class="logolinks" href="/admin_dashboard">Admin Panel</a>
+    {% endif %}
+
+    <a class="logolinks" href="/logout">Logout</a>
+        {% else %}
+            <a class="logolinks" href="/register">Register</a>
+            <a class="logolinks" href="/login">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Service Sathi - Connecting Lahore with Quality Services</p>
+        <div class="footer-text">
+    Contact us: servicesathihelp@gmail.com
+</div>
+    </footer>
+
+</body>
+</html>

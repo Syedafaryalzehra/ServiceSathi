@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="dashboard-title">Service Sathi . pk</h1>
+
+<div class="dashboard-wrapper">
+    
+    <div class="box profile-card">
+        <div style="text-align: center;">
+            <img src="{{ profile.profile_picture if profile.profile_picture else '/static/images/default.png' }}" 
+                 class="profile-img">
+            <br>
+            <button class="small-btn">change profile picture</button>
+        </div>
+        
+        <h2 class="section-heading">My Profile</h2>
+
+        <div class="profile-info">
+            <p><strong>Name:</strong> {{ profile.name }}</p>
+            <p><strong>Cnic:</strong> {{ profile.cnic }}</p>
+            <p><strong>Contact no:</strong> {{ profile.phone }}</p>
+            <p><strong>Address:</strong> {{ profile.address }}</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="action-btn">Edit Profile</button>
+        </div>
+    </div>
+
+    <div class="right-column">
+        
+        <div class="box">
+            <h2 class="section-heading">My Bookings</h2>
+            <div class="scroll-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ 'Provider' if role == 'user' else 'Customer' }}</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>{{ b[0] }}</td>
+                            <td>{{ b[1] }}</td>
+                            <td>{{ b[2] }}</td>
+                            <td>{{ b[3] }}-{{ b[4] }}</td>
+                            <td>
+                                <button class="info-btn">Info</button>
+                                <button class="cancel-btn">Cancel</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if role == 'seller' %}
+        <div class="box">
+            <h2 class="section-heading">Add New Service</h2>
+
+            <form action="/add_service" method="POST" class="form-grid">
+                
+                <div>
+                    <label>Category:</label><br>
+                    <select name="category_id" required>
+                        {% for cat in categories %}
+                            <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label>Price/Hour (PKR):</label><br>
+                    <input type="number" name="price" placeholder="e.g. 1000" required>
+                </div>
+
+                <div>
+                    <label>Experience (Years):</label><br>
+                    <input type="number" name="experience" placeholder="e.g. 3" required>
+                </div>
+
+                <div>
+                    <label>Short Description:</label><br>
+                    <textarea name="description" placeholder="Briefly describe your skill"></textarea>
+                </div>
+
+                <div class="form-submit">
+                    <button type="submit" class="action-btn">Confirm Service</button>
+                </div>
+
+            </form>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+{% endblock %}
