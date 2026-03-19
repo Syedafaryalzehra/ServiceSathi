@@ -22,7 +22,10 @@ Service Sathi is a web-based platform connecting local service providers (Seller
 
 ## How to Run
 1. **Database Setup:** - Open SQL Server Management Studio.
-   - Run the scripts in (database/schema.sql) to create tables.
+   - Run the scripts in (database) to create tables,procedures and views in order
+   - 1 schema.sql
+   - 2 views.sql
+   - 3 procedures.sql
    - Run (database/seed.sql) to populate sample data.
 2. **Environment Setup:**
    - Install requirements: `pip install flask pyodbc python-dotenv`
