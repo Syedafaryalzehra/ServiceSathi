@@ -17,7 +17,7 @@ Service Sathi is a web-based platform connecting local service providers (Seller
 ## Project Structure
 - backend/: Flask application logic (app.py)
 - frontend/: Templates and static assets (CSS)
-- database/: (schema.sql), (seed.sql), and (erd.png)
+-  database/: (schema.sql), (seed.sql),(procedures.sql),(views.sql) and (erd.png)
 - docs/: Project reports and iteration documents
 
 ## How to Run
