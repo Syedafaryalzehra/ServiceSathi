@@ -326,9 +326,7 @@ footer
     text-align: center;
    
 }
-/* ===== CLEANING INLINE STYLES ===== */
 
-/* Title override (instead of inline Comic Sans) */
 .dashboard-title {
     font-family: 'Comic Sans MS';
     padding-left: 20px;
@@ -359,7 +357,6 @@ footer
     line-height: 1.8;
 }
 
-/* Right column layout (you used inline flex before) */
 .right-column {
     display: flex;
     flex-direction: column;
