@@ -9,7 +9,7 @@ Service Sathi is a web-based platform connecting local service providers (Seller
 * [ Ibrahim Qaiser ] - [24l-2513]
 
 ## Tech Stack
-* **Frontend:** HTML, CSS, JavaScript (Flask Templates)
+* **Frontend:** HTML, CSS
 * **Backend:** Python (Flask)
 * **Database:** SQL Server (MS SQL)
 * **Connection:** pyodbc with .env configuration
