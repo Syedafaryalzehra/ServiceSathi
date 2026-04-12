@@ -168,48 +168,38 @@ def dashboard():
 
     u_id = session['id']
     role = session['role']
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # PROFILE
-    if role == 'seller':
-        cursor.execute("SELECT seller_id, name, cnic, phone, address, profile_picture FROM Sellers WHERE seller_id = ?", (u_id,))
-    else:
-        cursor.execute("SELECT user_id, name, cnic, phone, address, profile_picture FROM Users WHERE user_id = ?", (u_id,))
+    table = "Sellers" if role == 'seller' else "Users"
+    pk = "seller_id" if role == 'seller' else "user_id"
+    cursor.execute(f"SELECT {pk}, name, cnic, phone, address, profile_picture FROM {table} WHERE {pk} = ?", (u_id,))
     profile = cursor.fetchone()
 
-    # BOOKINGS
-    if role == 'user':
-        cursor.execute("""
-            SELECT seller_name, category_name, booking_date,
-                   start_time, end_time, status
-            FROM View_User_Bookings
-            WHERE user_id = ?
+    if role == 'seller':
+       cursor.execute("""
+            SELECT seller_id, name, category_name, booking_date, 
+                   start_time, end_time, status, instructions, booking_id,
+                   job_address, total_payment
+            FROM View_Seller_Bookings 
+            WHERE seller_id = ? AND status != 'rejected'
         """, (u_id,))
+       bookings = cursor.fetchall()
+       cursor.execute("SELECT category_id, category_name FROM Categories")
+       categories = cursor.fetchall()
     else:
         cursor.execute("""
-            SELECT user_name, category_name, booking_date,
-                   start_time, end_time, status
-            FROM View_Seller_Bookings
-            WHERE seller_id = ?
+            SELECT user_id, name, category_name, booking_date, 
+                   start_time, end_time, status, instructions, booking_id,
+                   job_address, total_payment
+            FROM View_User_Bookings WHERE user_id = ?
         """, (u_id,))
-
-    bookings = cursor.fetchall()
-
-    # SELLER CATEGORIES
-    categories = []
-    if role == 'seller':
-        cursor.execute("SELECT category_id, category_name FROM Categories")
-        categories = cursor.fetchall()
+        bookings = cursor.fetchall()
+        categories = []
 
     conn.close()
+    return render_template('dashboard.html', profile=profile, bookings=bookings, role=role, categories=categories)
 
-    return render_template('dashboard.html',
-                           profile=profile,
-                           bookings=bookings,
-                           role=role,
-                           categories=categories)
 
 # ---------------- ADD SERVICE ----------------
 @app.route('/add_service', methods=['POST'])
