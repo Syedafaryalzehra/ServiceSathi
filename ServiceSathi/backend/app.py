@@ -124,23 +124,41 @@ def logout():
 # ---------------- CATEGORY VIEW ----------------
 @app.route('/category/<int:cat_id>')
 def view_category(cat_id):
+    seller_name = request.args.get('seller_name', '').strip()
+    max_price = request.args.get('max_price')
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    query = """
         SELECT name, description, average_rating, price_per_hour,
                experience_years, seller_id, profile_picture
         FROM View_Category_Providers
         WHERE category_id = ?
-    """, (cat_id,))
+    """
+    params = [cat_id]
+
+    if seller_name:
+        query += " AND name LIKE ?"
+        params.append(f'%{seller_name}%')
+
+    if max_price:
+        query += " AND price_per_hour <= ?"
+        params.append(float(max_price))
+
+    cursor.execute(query, params)
     providers = cursor.fetchall()
 
     cursor.execute("SELECT category_name FROM Categories WHERE category_id = ?", (cat_id,))
     category = cursor.fetchone()
-
     conn.close()
 
-    return render_template('category_view.html', providers=providers, category=category[0])
+    return render_template('category_view.html', 
+                           providers=providers, 
+                           category=category[0], 
+                           cat_id=cat_id, 
+                           seller_name=seller_name, 
+                           max_price=max_price)
 
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
