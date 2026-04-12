@@ -3,43 +3,42 @@
 {% block content %}
 
 <h2 class="page-heading">Service Providers for: {{ category }}</h2>
-
+<div class="search-form"> <form method="GET" action="/category/{{ cat_id }}" style="display: flex; gap: 10px;">
+        <input type="text" 
+               name="seller_name" 
+               placeholder="Search sellers..." 
+               value="{{ seller_name if seller_name else '' }}">
+        
+        <input type="number" 
+               name="max_price" 
+               placeholder="Max price..." 
+               value="{{ max_price if max_price else '' }}"
+               style="width: 150px;"> <button type="submit" class="view-btn">Search</button>
+        <a href="/category/{{ cat_id }}" class="view-btn" style="background:#ffb8b8; text-decoration:none; display:inline-block; line-height:25px;">Clear</a>
+    </form>
+</div>
 <div class="providers-grid">
-
     {% if providers %}
         {% for pro in providers %}
-
         <div class="provider-card">
-
-    <div class="provider-left">
-    <img src="{{ pro[6] if pro[6] else '/static/images/default.png' }}"
-         alt="Seller Image"
-         class="seller-img">
-</div>
-
-    <!-- RIGHT CONTENT -->
-    <div class="provider-right">
-
-        <h3>{{ pro.name }}</h3>
-
-        <p><strong>Rating:</strong> ⭐ {{ pro.average_rating }}</p>
-        <p><strong>Experience:</strong> {{ pro.experience_years }} Years</p>
-        <p><strong>Price:</strong> {{ pro.price_per_hour }} PKR/hr</p>
-        <p class="provider-desc">{{ pro.description }}</p>
-
-        {% if session.role == 'user' %}
-            <a href="/book/{{ pro.seller_id }}" class="book-btn">Book Now</a>
-        {% endif %}
-
-    </div>
-
-</div>
-
+            <div class="provider-left">
+                <img src="{{ pro[6] if pro[6] else '/static/images/default.png' }}" class="seller-img">
+            </div>
+            <div class="provider-right">
+                <h3>{{ pro.name }}</h3>
+                <p><strong>Rating:</strong> ⭐ {{ pro.average_rating }}</p>
+                <p><strong>Experience:</strong> {{ pro.experience_years }} Years</p>
+                <p><strong>Price:</strong> {{ pro.price_per_hour }} PKR/hr</p>
+                <p class="provider-desc">{{ pro.description }}</p>
+                {% if session.role == 'user' %}
+                    <a href="/book/{{ pro.seller_id }}" class="book-btn">Book Now</a>
+                {% endif %}
+            </div>
+        </div>
         {% endfor %}
     {% else %}
-        <p>No providers found for this category yet.</p>
+        <p style="text-align:center;">No providers found matching these filters.</p>
     {% endif %}
-
 </div>
 
 {% endblock %}
