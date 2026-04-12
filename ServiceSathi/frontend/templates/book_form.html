@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-box booking-container">
+    <h2 class="page-heading">Book {{ details[0] }}</h2>
+    
+    <p class="rate-display">
+        <strong>Category:</strong> {{ details[3] }} | 
+        <strong>Rate:</strong> <span id="rate">{{ details[1] }}</span> PKR/hr
+    </p>
+    
+    <form method="POST" class="login-form" id="bookingForm">
+        <input type="hidden" name="service_id" value="{{ details[2] }}">
+        
+        <label for="booking_date">Date of Service:</label>
+        <input type="date" name="booking_date" id="booking_date" required min="{{ today }}">
+        
+        <div class="time-grid">
+            <div class="input-group">
+                <label for="startTime">Start Time:</label>
+                <input type="time" name="start_time" id="startTime" required onchange="calculateTotal()">
+            </div>
+            <div class="input-group">
+                <label for="endTime">End Time:</label>
+                <input type="time" name="end_time" id="endTime" required onchange="calculateTotal()">
+            </div>
+        </div>
+
+        <div class="estimate-wrapper">
+            Estimated Amount: <span id="totalAmount">0</span> PKR
+        </div>
+
+        <label for="address">Your Address (Lahore):</label>
+        <textarea name="address" id="address" required placeholder="Enter complete address..."></textarea>
+
+        <label for="instructions">Instructions for Seller (Mandatory):</label>
+        <textarea name="instructions" id="instructions" required placeholder="Describe the problem..."></textarea>
+
+        <button type="submit" class="login-btn">Confirm Booking</button>
+        <a href="/" class="cancel-link">Cancel</a>
+    </form>
+</div>
+
+<script>
+function calculateTotal() {
+    const start = document.getElementById('startTime').value;
+    const end = document.getElementById('endTime').value;
+    const rate = parseFloat(document.getElementById('rate').innerText);
+
+    if (start && end) {
+        const [sH, sM] = start.split(':').map(Number);
+        const [eH, eM] = end.split(':').map(Number);
+        
+        const startDate = new Date(0, 0, 0, sH, sM);
+        const endDate = new Date(0, 0, 0, eH, eM);
+        
+        let diff = (endDate - startDate) / (1000 * 60 * 60);
+        
+        const display = document.getElementById('totalAmount');
+        if (diff > 0) {
+            display.innerText = (diff * rate).toFixed(2);
+        } else {
+            display.innerText = "Invalid Time";
+        }
+    }
+}
+</script>
+{% endblock %}
