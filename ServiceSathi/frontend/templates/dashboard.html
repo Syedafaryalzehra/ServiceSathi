@@ -39,20 +39,61 @@
                             <th>Category</th>
                             <th>Date</th>
                             <th>Time</th>
+                            <th>Info</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for b in bookings %}
                         <tr>
-                            <td>{{ b[0] }}</td>
                             <td>{{ b[1] }}</td>
                             <td>{{ b[2] }}</td>
-                            <td>{{ b[3] }}-{{ b[4] }}</td>
+                            <td>{{ b[3] }}</td>
+                            <td>{{ b[4] }} - {{ b[5] }}</td>
+                            
                             <td>
-                                <button class="info-btn">Info</button>
-                                <button class="cancel-btn">Cancel</button>
+                                <button class="cute-btn view-info-btn"
+                                        data-name="{{ b[1] }}"
+                                        data-date="{{ b[3] }}"
+                                        data-time="{{ b[4] }} - {{ b[5] }}"
+                                        data-instructions="{{ b[7] }}"
+                                        data-address="{{ b[9] }}"
+                                        data-payment="{{ b[10] }}">
+                                    View Details
+                                </button>
                             </td>
+
+                           <td>
+    {% if role == 'seller' and b[6] == 'pending' %}
+        <div style="display: flex; gap: 5px; justify-content: center;">
+            <form action="{{ url_for('accept_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
+                <button type="submit" class="action-btn" style="background:#c3e6cb; font-size:10px; padding: 4px 8px;">Accept</button>
+            </form>
+            <form action="{{ url_for('reject_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
+                <button type="submit" class="cancel-btn" style="background:#ffb8b8; font-size:10px; padding: 4px 8px;">Reject</button>
+            </form>
+        </div>
+
+    {% elif role == 'user' and b[6] in ['pending', 'accepted'] %}
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <span style="font-weight: bold; color: {{ 'green' if b[6] == 'accepted' else 'black' }};">
+                {{ b[6]|capitalize }}
+            </span>
+            <form action="{{ url_for('cancel_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
+                <button type="submit" class="cute-btn" style="background:#ffb8b8;" 
+                        onclick="return confirm('Are you sure you want to cancel this booking?');">
+                    Cancel
+                </button>
+            </form>
+        </div>
+
+    {% else %}
+        <span style="font-weight: bold; 
+              color: {{ 'green' if b[6] == 'accepted' else 'red' if b[6] == 'cancelled' else 'black' }};">
+            {{ b[6]|capitalize if b[6] else '' }}
+        </span>
+    {% endif %}
+</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -65,7 +106,6 @@
             <h2 class="section-heading">Add New Service</h2>
 
             <form action="/add_service" method="POST" class="form-grid">
-                
                 <div>
                     <label>Category:</label><br>
                     <select name="category_id" required>
@@ -93,7 +133,6 @@
                 <div class="form-submit">
                     <button type="submit" class="action-btn">Confirm Service</button>
                 </div>
-
             </form>
         </div>
         {% endif %}
@@ -101,5 +140,49 @@
     </div>
 </div>
 
+<div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="close-modal-btn" onclick="closeModal()">X</button>
+        <h2 style="margin-top: 0; border-bottom: 2px solid black; padding-bottom: 10px;">Booking Details</h2>
+        
+        <p><strong>Name:</strong> <span id="modalName"></span></p>
+        <p><strong>Date:</strong> <span id="modalDate"></span></p>
+        <p><strong>Time:</strong> <span id="modalTime"></span></p>
+        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+        <p><strong>Total Payment:</strong> <span id="modalPayment"></span> PKR</p>
+        
+        <p style="margin-bottom: 5px; margin-top: 15px;"><strong>Instructions / Info:</strong></p>
+        <div id="modalInstructions" class="modal-info-text"></div>
+    </div>
+</div>
+
+<script>
+    const buttons = document.querySelectorAll('.view-info-btn');
+    const modal = document.getElementById('infoModal');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('modalName').textContent = this.getAttribute('data-name');
+            document.getElementById('modalDate').textContent = this.getAttribute('data-date');
+            document.getElementById('modalTime').textContent = this.getAttribute('data-time');
+            document.getElementById('modalAddress').textContent = this.getAttribute('data-address');
+            document.getElementById('modalPayment').textContent = this.getAttribute('data-payment');
+            document.getElementById('modalInstructions').textContent = this.getAttribute('data-instructions');
+            
+            modal.style.display = 'flex';
+        });
+    });
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    // Close modal if user clicks anywhere outside of the pop-up box
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
 
 {% endblock %}
