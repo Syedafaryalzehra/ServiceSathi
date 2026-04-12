@@ -259,6 +259,117 @@ def delete_seller(seller_id):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
+# ---------------- ADMIN: ADD NEW CATEGORY ----------------
+@app.route('/admin/add_category', methods=['POST'])
+def add_category():
+    if session.get('role') != 'admin': 
+        return redirect(url_for('login'))
+
+    category_name = request.form.get('category_name').strip()
+    base_description = request.form.get('base_description', '').strip()
+
+    if not category_name:
+        flash("Error: Category name cannot be empty.", "danger")
+        return redirect(url_for('admin_dashboard'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Insert the new category into the database
+        cursor.execute("""
+            INSERT INTO Categories (category_name, base_description) 
+            VALUES (?, ?)
+        """, (category_name, base_description))
+        
+        conn.commit()
+        flash(f"Category '{category_name}' added successfully!", "success")
+        
+    except Exception as e:
+        print(f"DATABASE ERROR: {e}")
+        flash("Failed to add category. It might already exist.", "danger")
+        conn.rollback()
+        
+    finally:
+        conn.close()
+
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/book/<int:seller_id>', methods=['GET', 'POST'])
+def book_service(seller_id):
+    if not session.get('loggedin') or session.get('role') != 'user':
+        flash("Please login as a user to book a service.", "danger")
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        service_id = request.form['service_id']
+        booking_date = request.form['booking_date']
+        start_time = request.form['start_time']
+        end_time = request.form['end_time']
+        job_address = request.form['address']
+        instructions = request.form.get('instructions', '').strip()
+
+        if not instructions:
+            flash("Error: Instructions are mandatory.", "danger")
+            return redirect(url_for('book_service', seller_id=seller_id))
+
+        try:
+            cursor.execute("""
+                SET NOCOUNT ON;
+                EXEC BookService @user_id=?, @service_id=?, @booking_date=?, @start_time=?, @end_time=?, @job_address=?, @instructions=?
+            """, (int(session['id']), int(service_id), booking_date, start_time, end_time, job_address, instructions))
+            
+            conn.commit()
+            flash("Booking request sent successfully!", "success")
+            return redirect(url_for('dashboard'))
+
+        except Exception as e:
+            print(f"\n\n!!! DATABASE ERROR !!!\n{e}\n\n") 
+            flash(f"Booking Failed: {str(e).split(']')[-1]}", "danger")
+            conn.rollback()
+
+    # GET Method logic
+    cursor.execute("""
+        SELECT s.name, sv.price_per_hour, sv.service_id, c.category_name 
+        FROM Sellers s 
+        JOIN Services sv ON s.seller_id = sv.seller_id 
+        JOIN Categories c ON sv.category_id = c.category_id
+        WHERE s.seller_id = ?""", (seller_id,))
+    details = cursor.fetchone()
+    conn.close()
+
+    if not details:
+        return "Service details not found", 404
+
+    return render_template('book_form.html', details=details, today=date.today().isoformat())
+
+
+@app.route('/accept_booking/<int:b_id>', methods=['POST'])
+def accept_booking(b_id):
+    if session.get('role') != 'seller': return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("EXEC UpdateBookingStatus ?, 'accepted'", (b_id,))
+    conn.commit()
+    conn.close()
+    flash("Booking Accepted!", "success")
+    return redirect(url_for('dashboard'))
+
+@app.route('/reject_booking/<int:b_id>', methods=['POST'])
+def reject_booking(b_id):
+    if session.get('role') != 'seller': return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("EXEC UpdateBookingStatus ?, 'rejected'", (b_id,))
+    conn.commit()
+    conn.close()
+    flash("Booking Rejected", "danger")
+    return redirect(url_for('dashboard'))
+
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
