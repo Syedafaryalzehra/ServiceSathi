@@ -219,23 +219,46 @@ def add_service():
         return f"Error: {str(e)}"
 
 # ---------------- ADMIN ----------------
-@app.route('/admin_dashboard')
+@app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
+    user_search = request.args.get('user_search', '')
+    seller_search = request.args.get('seller_search', '')
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT user_id, username, name, email, phone FROM Users")
+    cursor.execute("SELECT user_id, username, name, email, phone FROM Users WHERE name LIKE ?", ('%' + user_search + '%',))
     users = cursor.fetchall()
 
-    cursor.execute("SELECT seller_id, username, name, email, phone, bio FROM Sellers")
+    cursor.execute("SELECT seller_id, username, name, email, phone, bio FROM Sellers WHERE name LIKE ?", ('%' + seller_search + '%',))
     sellers = cursor.fetchall()
 
     conn.close()
+    return render_template('admin.html', users=users, sellers=sellers, user_search=user_search, seller_search=seller_search)
 
-    return render_template('admin.html', users=users, sellers=sellers)
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("EXEC DeleteUserByAdmin ?", (user_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_seller/<int:seller_id>', methods=['POST'])
+def delete_seller(seller_id):
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("EXEC DeleteSellerByAdmin ?", (seller_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
