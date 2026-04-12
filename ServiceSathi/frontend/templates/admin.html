@@ -2,56 +2,96 @@
 
 {% block content %}
 
-<h1 style="text-align:center;">Admin Dashboard</h1>
+<h1 class="title">Admin Dashboard</h1>
 
-<hr>
+<div >
+    <h2 class="section-heading">All Users</h2>
+    <form method="GET" action="{{ url_for('admin_dashboard') }}" class="admin-search-form">
+        <input type="text" name="user_search" placeholder="Search user..." value="{{ user_search }}">
+        <button type="submit" class="view-btn">Search</button>
+    </form>
 
-<h2>All Users</h2>
+    <div class="scroll-box">
+        <table>
+            <tr><th>ID</th><th>Username</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr>
+            {% for u in users %}
+            <tr>
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td>{{ u[2] }}</td>
+                <td>{{ u[3] }}</td>
+                <td>{{ u[4] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_user', user_id=u[0]) }}" method="POST" onsubmit="return confirm('Delete this user?');">
+                        <button type="submit" class="remove-btn">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
 
-<table border="1" width="100%" style="text-align:center;">
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-    </tr>
+<br>
 
-    {% for u in users %}
-    <tr>
-        <td>{{ u[0] }}</td>
-        <td>{{ u[1] }}</td>
-        <td>{{ u[2] }}</td>
-        <td>{{ u[3] }}</td>
-        <td>{{ u[4] }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div >
+    <h2 class="section-heading">All Sellers</h2>
+    <form method="GET" action="{{ url_for('admin_dashboard') }}" class="admin-search-form">
+        <input type="text" name="seller_search" placeholder="Search seller..." value="{{ seller_search }}">
+        <button type="submit" class="view-btn">Search</button>
+    </form>
 
-<hr>
+    <div class="scroll-box">
+        <table>
+            <tr><th>ID</th><th>Username</th><th>Name</th><th>Email</th><th>Phone</th><th>Bio</th><th>Action</th></tr>
+            {% for s in sellers %}
+            <tr>
+                <td>{{ s[0] }}</td>
+                <td>{{ s[1] }}</td>
+                <td>{{ s[2] }}</td>
+                <td>{{ s[3] }}</td>
+                <td>{{ s[4] }}</td>
+                <td>{{ s[5] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_seller', seller_id=s[0]) }}" method="POST" onsubmit="return confirm('Delete this seller?');">
+                        <button type="submit" class="remove-btn">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
 
-<h2>All Sellers</h2>
 
-<table border="1" width="100%" style="text-align:center;">
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Bio</th>
-    </tr>
 
-    {% for s in sellers %}
-    <tr>
-        <td>{{ s[0] }}</td>
-        <td>{{ s[1] }}</td>
-        <td>{{ s[2] }}</td>
-        <td>{{ s[3] }}</td>
-        <td>{{ s[4] }}</td>
-        <td>{{ s[5] }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<br>
+
+<div  >
+    <h2 class="section-heading">Add New Category</h2>
+    
+    <div style="  margin-bottom: 30px;">
+        
+        <form action="{{ url_for('add_category') }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <div>
+                <label style="font-weight: bold;">Category Name:</label><br>
+                <input type="text" name="category_name" placeholder="e.g. Carpentry" required 
+                       style="width: 95%; padding: 8px; border: 2px solid black; background: #f3f3f3;">
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Base Description:</label><br>
+                <textarea name="base_description" placeholder="Briefly describe what this category includes..." 
+                          style="width: 95%; height: 60px; padding: 8px; border: 2px solid black; background: #f3f3f3; resize: none;"></textarea>
+            </div>
+
+            <div style="text-align: right;">
+                <button type="submit" class="view-btn" style="background: #c3b3e8; cursor: pointer;">Add Category</button>
+            </div>
+            
+        </form>
+    </div>
+</div>
 
 {% endblock %}
