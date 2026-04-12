@@ -296,6 +296,7 @@ def add_category():
     return redirect(url_for('admin_dashboard'))
 
 
+# ---------------- BOOK SERVICE ----------------
 @app.route('/book/<int:seller_id>', methods=['GET', 'POST'])
 def book_service(seller_id):
     if not session.get('loggedin') or session.get('role') != 'user':
