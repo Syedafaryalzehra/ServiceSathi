@@ -371,6 +371,32 @@ def reject_booking(b_id):
     flash("Booking Rejected", "danger")
     return redirect(url_for('dashboard'))
 
+# ---------------- CANCEL BOOKING (USER) ----------------
+@app.route('/cancel_booking/<int:b_id>', methods=['POST'])
+def cancel_booking(b_id):
+    if session.get('role') != 'user': 
+        return redirect(url_for('login'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        local_time_now = datetime.now()
+        
+        cursor.execute("""
+            SET NOCOUNT ON;
+            EXEC CancelUserBooking ?, ?, ?
+        """, (b_id, session['id'], local_time_now))
+        
+        conn.commit()
+        flash("Booking successfully cancelled.", "success")
+        
+    except Exception as e:
+        flash(f"Cancellation Failed: {str(e).split(']')[-1]}", "danger")
+        conn.rollback()
+        
+    conn.close()
+    return redirect(url_for('dashboard'))
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
