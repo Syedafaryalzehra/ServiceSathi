@@ -1,11 +1,8 @@
-/* PAGE BACKGROUND */
-
 body{
     background-color:#f8f1f1;
     font-family: Arial, sans-serif;
 }
 
-/* MAIN TITLE */
 .title{
      font-family:'Fredoka', sans-serif;
     text-align:center;
@@ -14,7 +11,6 @@ body{
     margin-top:40px;
 }
 
-/* LOGIN BOX */
 .login-box{
     width:520px;
     margin:50px auto;
@@ -25,17 +21,11 @@ body{
     font-size:12px;
 }
 
-
-/* FORM LAYOUT */
-
 .login-form{
     display:flex;
     flex-direction:column;
     gap:3px;
 }
-
-
-/* LABELS */
 
 .login-form label{
     font-weight:bold;
@@ -52,10 +42,6 @@ body{
     color: #155724;
 }
 
-/* INPUTS */
-
-/* REGISTER PAGE INPUTS */
-
 .login-form input,
 .login-form textarea,
 .login-form input[type="date"],
@@ -66,22 +52,17 @@ body{
     background:#f3f3f3;
 }
 
-/* TEXTAREA */
-
 .login-form textarea{
     resize:none;
     height:50px;
 }
 
-/* SELLER BIO BOX */
 
 .seller-box{
     background:#f5f5f5;
     border:2px solid black;
     padding:10px;
 }
-
-/* RADIO SECTION */
 
 #radio{
     display:flex;
@@ -145,9 +126,6 @@ nav a{
     font-weight:bold;
 }
 
-/*category page*/
-/* PAGE HEADING */
-
 .page-heading{
     text-align:center;
     font-family:'Fredoka', sans-serif;
@@ -172,16 +150,11 @@ nav a{
     padding:18px;
 }
 
-
-/* DESCRIPTION */
-
 .provider-desc{
     font-style:italic;
     margin-top:5px;
 }
 
-
-/* CATEGORY GRID */
 
 .category-grid{
     display:grid;
@@ -190,8 +163,6 @@ nav a{
     margin-top:30px;
 }
 
-
-/* CATEGORY CARD */
 
 .category-card{
     background:#cef8fc;
@@ -248,8 +219,6 @@ nav a{
     transform:translate(2px,2px);
     box-shadow:none;
 }
-/* ERROR MESSAGE */
-
 .error{
     color:#ff4d8d;
     text-align:center;
@@ -332,7 +301,6 @@ footer
     padding-left: 20px;
 }
 
-/* Profile image */
 .profile-img {
     width: 130px;
     height: 130px;
@@ -346,13 +314,11 @@ footer
     margin-top: 10px;
 }
 
-/* Section headings */
 .section-heading {
     border-bottom: 2px solid black;
     margin-top: 20px;
 }
 
-/* Profile text spacing */
 .profile-info {
     line-height: 1.8;
 }
@@ -362,8 +328,6 @@ footer
     flex-direction: column;
     gap: 20px;
 }
-
-/* Form grid */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -371,7 +335,6 @@ footer
     margin-top: 10px;
 }
 
-/* Inputs inside form */
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
@@ -380,18 +343,14 @@ footer
     border: 2px solid black;
 }
 
-/* Textarea height */
 .form-grid textarea {
     height: 40px;
 }
 
-/* Form button container */
 .form-submit {
     grid-column: span 2;
     text-align: right;
 }
-
-
 
 /* Booking buttons */
 .info-btn {
@@ -408,268 +367,6 @@ footer
     font-size: 12px;
 }
 
-/* FILTER BOX CONTAINER */
-.filter-box {
-    width: 90%;
-    max-width: 900px;
-    margin: 0 auto 30px auto;
-    background: #cef8fc; /* Matches your login-box/category-card */
-    border: 3px solid black;
-    border-radius: 20px; /* Matches your 8% border-radius style */
-    padding: 20px;
-}
-
-.filter-form {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.filter-input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex: 1;
-    min-width: 150px;
-}
-
-.filter-input-group label {
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.filter-input-group input {
-    padding: 8px;
-    border: 2px solid black;
-    background: #f3f3f3;
-    font-size: 13px;
-}
-
-.filter-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-/*asiasdasidiasdasiudhasiudhiu
-
-/* ADD THIS TO YOUR CSS TO FIX BUTTON ALIGNMENT */
-.filter-buttons .view-btn {
-    display: inline-block;
-    line-height: normal;
-    text-align: center;
-}
-
-/* Ensure the filter bar is centered and matches the screenshot height */
-.search-form {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 30px;
-    margin-top: 20px;
-}
-
-/* Specific styling for the inputs to match your 'Search categories' box */
-.search-form input {
-    padding: 8px;
-    border: 2px solid black;
-    background: #f3f3f3;
-    font-size: 14px;
-    /* This matches the width in your provided CSS but allows for two boxes */
-    width: 300px; 
-}
-
-/* Ensure the button looks exactly like the purple 'Search' button in the image */
-.search-form .view-btn {
-    background: #d8c9f0; /* The exact purple from your nav/footer */
-    border: 2px solid black;
-    padding: 8px 20px;
-    font-weight: bold;
-    color: black;
-    box-shadow: 3px 3px 0px black; /* The exact shadow from your screenshot */
-    cursor: pointer;
-}
-
-.search-form .view-btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: none;
-}
-
-/* Base style for all alerts */
-.alert {
-    padding: 15px;
-    border: 3px solid black;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-/* Specific colors based on the category */
-.alert-success { background-color: #c3e6cb; }
-.alert-danger  { background-color: #ffb8b8; }
-.alert-info    { background-color: #cef8fc; }
-
-
-
-
-/* ADMIN SEARCH AND ACTION STYLES */
-
-.admin-search-form {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.admin-search-form input {
-    padding: 8px;
-    width: 250px;
-    border: 2px solid black;
-    background: #f3f3f3;
-}
-
-.remove-btn {
-    background: #ffb8b8;
-    border: 2px solid black;
-    padding: 4px 10px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 2px 2px 0px black;
-    font-size: 12px;
-}
-
-.remove-btn:active {
-    transform: translate(2px, 2px);
-    box-shadow: none;
-}
-
-/* Container adjustments */
-.booking-container {
-    width: 550px;
-    margin: 40px auto;
-}
-
-.rate-display {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 14px;
-    border-bottom: 2px solid #000;
-    padding-bottom: 10px;
-}
-
-/* Time Grid Layout */
-.time-grid {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.input-group {
-    flex: 1;
-}
-
-/* Price Box */
-.estimate-wrapper {
-    margin: 10px 0;
-    padding: 12px;
-    background: #d8c9f0; /* Matches your theme */
-    border: 2px solid black;
-    font-weight: bold;
-    text-align: center;
-    font-size: 16px;
-}
-
-/* Cancel Link */
-.cancel-link {
-    text-align: center;
-    display: block;
-    margin-top: 15px;
-    color: black;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.cancel-link:hover {
-    text-decoration: underline;
-}
-
-
-/* Cute 3D Button */
-.cute-btn {
-    background-color: #d8c9f0;
-    border: 2px solid black;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0px 4px 0px black;
-    transition: all 0.1s;
-    font-size: 12px;
-}
-
-.cute-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0px 0px 0px black;
-}
-
-/* 3D Modal Overlay (Darkens background) */
-.modal-overlay {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 3D Modal Content Box */
-.modal-content {
-    background: #cef8fc;
-    border: 4px solid black;
-    border-radius: 20px;
-    padding: 30px;
-    width: 400px;
-    box-shadow: 8px 8px 0px black;
-    position: relative;
-    text-align: left;
-    /* Cute pop-in animation */
-    transform: scale(0.8);
-    animation: popIn 0.2s forwards;
-}
-
-@keyframes popIn {
-    to { transform: scale(1); }
-}
-
-/* Close Button for Modal */
-.close-modal-btn {
-    position: absolute;
-    top: -15px; right: -15px;
-    background: #ffb8b8;
-    border: 3px solid black;
-    border-radius: 50%;
-    width: 35px; height: 35px;
-    font-weight: 900;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0px 4px 0px black;
-}
-
-.close-modal-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0px 0px 0px black;
-}
-
-.modal-info-text {
-    background: #fff;
-    border: 2px solid black;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 10px;
-    min-height: 60px;
-}
 .filter-buttons .view-btn {
     display: inline-block;
     line-height: normal;
