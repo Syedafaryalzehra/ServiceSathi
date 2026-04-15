@@ -1,4 +1,4 @@
-# Service Sathi - Project Iteration 1
+# Service Sathi - Project 
 
 ## Description
 Service Sathi is a web-based platform connecting local service providers (Sellers) like electricians, plumbers, and cleaners with customers (Users) across lahore. This iteration covers user registration, login, and the service discovery dashboard.
