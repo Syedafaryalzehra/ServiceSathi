@@ -4,9 +4,10 @@
 Service Sathi is a web-based platform connecting local service providers (Sellers) like electricians, plumbers, and cleaners with customers (Users) across Lahore. Features include user registration, login, service discovery dashboard, seller profiles, AI chatbot support, admin panel, responsive design, and Cloudinary image management.
 
 ## Team Members
+* [Ibrahim Qaiser] - [24l-2513]
 * [Syeda Faryal Zehra] - [24l-2556]
 * [Syeda Ume Abeeha Naqvi] - [24l-2528]
-* [Ibrahim Qaiser] - [24l-2513]
+
 
 ## Tech Stack
 * **Frontend:** HTML, CSS, JavaScript (Flask Templates) - Responsive Design
