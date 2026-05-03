@@ -4,17 +4,16 @@
 Service Sathi is a web-based platform connecting local service providers (Sellers) like electricians, plumbers, and cleaners with customers (Users) across Lahore. Features include user registration, login, service discovery dashboard, seller profiles, AI chatbot support, admin panel, responsive design, and Cloudinary image management.
 
 ## Team Members
-* [Ibrahim Qaiser] - [24l-2513]
 * [Syeda Faryal Zehra] - [24l-2556]
 * [Syeda Ume Abeeha Naqvi] - [24l-2528]
-
+* [Ibrahim Qaiser] - [24l-2513]
 
 ## Tech Stack
 * **Frontend:** HTML, CSS, JavaScript (Flask Templates) - Responsive Design
 * **Backend:** Python (Flask 3.1.3)
 * **Database:** SQL Server (MS SQL) with pyODBC
 * **Image Management:** Cloudinary
-* **AI Chatbot:** Google Generative AI (Gemini)
+* **AI Chatbot:** Groq AI (LLaMA 3.3-70B)
 * **Styling:** Custom CSS with Flexbox, Glass Morphism Effects
 * **3D Graphics:** Three.js for hero section canvas
 
@@ -23,7 +22,7 @@ Service Sathi is a web-based platform connecting local service providers (Seller
 - ✅ Service Discovery & Search
 - ✅ Seller Dashboard & Profile Management
 - ✅ Admin Panel for system management
-- ✅ AI Chatbot (SaathiBot) powered by Google Gemini
+- ✅ AI Chatbot (SaathiBot) powered by Groq AI
 - ✅ Cloudinary Image Upload & Management
 - ✅ Responsive Design (Mobile, Tablet, Desktop)
 - ✅ Cross-browser Compatible (Chrome, Firefox, Edge, Safari)
@@ -33,7 +32,7 @@ Service Sathi is a web-based platform connecting local service providers (Seller
 ServiceSathi/
 ├── backend/
 │   ├── app.py                 # Main Flask application & routes
-│   ├── saathi_bot.py          # AI Chatbot logic (Gemini API)
+│   ├── saathi_bot.py          # AI Chatbot logic (Groq API)
 │   ├── requirements.txt        # Python dependencies
 │   ├── bulk_seed.py           # Database seeding script
 │   ├── check_categories.py    # Utility: Check Categories table schema
