@@ -1,188 +1,424 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="dashboard-title">Service Sathi . pk</h1>
-
-<div class="dashboard-wrapper">
-    
-    <div class="box profile-card">
-        <div style="text-align: center;">
-            <img src="{{ profile.profile_picture if profile.profile_picture else '/static/images/default.png' }}" 
-                 class="profile-img">
-            <br>
-            <button class="small-btn">change profile picture</button>
-        </div>
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 class="title" style="margin-bottom: 0;">My Dashboard</h1>
         
-        <h2 class="section-heading">My Profile</h2>
-
-        <div class="profile-info">
-            <p><strong>Name:</strong> {{ profile.name }}</p>
-            <p><strong>Cnic:</strong> {{ profile.cnic }}</p>
-            <p><strong>Contact no:</strong> {{ profile.phone }}</p>
-            <p><strong>Address:</strong> {{ profile.address }}</p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <button class="action-btn">Edit Profile</button>
+        <div style="position: relative; display: inline-block;">
+            <button id="cute-bell-btn" style="background: rgba(129, 140, 248, 0.15); border: none; font-size: 1.5rem; cursor: pointer; padding: 12px; border-radius: 50%; position: relative; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                🔔
+                <span id="notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.8rem; font-weight: bold; width: 22px; height: 22px; border-radius: 50%; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3); animation: bounce 1s infinite;">0</span>
+            </button>
+            
+            <div id="notif-dropdown" style="display: none; position: absolute; top: 130%; right: 0; width: 350px; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); z-index: 10000; overflow: hidden; transform-origin: top right; transition: all 0.3s ease; opacity: 0; transform: scale(0.95);">
+                <div style="padding: 15px 20px; background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border-color); font-weight: 700; color: white; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.1rem;">Notifications</span>
+                    <span id="mark-read-btn" style="font-size: 0.85rem; color: var(--primary); cursor: pointer; font-weight: normal; transition: color 0.2s;">Mark all read</span>
+                </div>
+                <div id="notif-dropdown-body" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                    <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 0.9rem;">No new notifications yet!</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="right-column">
-        
-        <div class="box">
-            <h2 class="section-heading">My Bookings</h2>
-            <div class="scroll-box">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>{{ 'Provider' if role == 'user' else 'Customer' }}</th>
-                            <th>Category</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Info</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in bookings %}
-                        <tr>
-                            <td>{{ b[1] }}</td>
-                            <td>{{ b[2] }}</td>
-                            <td>{{ b[3] }}</td>
-                            <td>{{ b[4] }} - {{ b[5] }}</td>
-                            
-                            <td>
-                                <button class="cute-btn view-info-btn"
-                                        data-name="{{ b[1] }}"
-                                        data-date="{{ b[3] }}"
-                                        data-time="{{ b[4] }} - {{ b[5] }}"
-                                        data-instructions="{{ b[7] }}"
-                                        data-address="{{ b[9] }}"
-                                        data-payment="{{ b[10] }}">
-                                    View Details
-                                </button>
-                            </td>
+    <div class="profile-header">
+        <div class="profile-pic-container" style="position: relative; display: inline-block;">
+            {% if profile.profile_picture %}
+                 <img src="{{ profile.profile_picture }}" alt="Profile"
+                style="width: 160px; height: 160px; object-fit: cover; border-radius: 12px; display: block; border: 2px solid var(--primary);"
+                onerror="this.src='https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg';">
+            {% else %}
+                <div class="letter-avatar" style="width: 160px; height: 160px; font-size: 5rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(129, 140, 248, 0.1); color: var(--primary);">
+                {{ profile.name[0] if profile.name else '?' }}
+                </div>
+            {% endif %} 
 
-                           <td>
-    {% if role == 'seller' and b[6] == 'pending' %}
-        <div style="display: flex; gap: 5px; justify-content: center;">
-            <form action="{{ url_for('accept_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
-                <button type="submit" class="action-btn" style="background:#c3e6cb; font-size:10px; padding: 4px 8px;">Accept</button>
-            </form>
-            <form action="{{ url_for('reject_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
-                <button type="submit" class="cancel-btn" style="background:#ffb8b8; font-size:10px; padding: 4px 8px;">Reject</button>
-            </form>
+            <a href="/edit_profile" class="view-btn"
+                style="position: absolute; bottom: -5px; right: -5px; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                ✏️
+            </a>
         </div>
 
-    {% elif role == 'user' and b[6] in ['pending', 'accepted'] %}
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-            <span style="font-weight: bold; color: {{ 'green' if b[6] == 'accepted' else 'black' }};">
-                {{ b[6]|capitalize }}
-            </span>
-            <form action="{{ url_for('cancel_booking', b_id=b[8]) }}" method="POST" style="display:inline;">
-                <button type="submit" class="cute-btn" style="background:#ffb8b8;" 
-                        onclick="return confirm('Are you sure you want to cancel this booking?');">
-                    Cancel
-                </button>
-            </form>
-        </div>
-
-    {% else %}
-        <span style="font-weight: bold; 
-              color: {{ 'green' if b[6] == 'accepted' else 'red' if b[6] == 'cancelled' else 'black' }};">
-            {{ b[6]|capitalize if b[6] else '' }}
-        </span>
-    {% endif %}
-</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="profile-info">
+            <h2>{{ profile[1] }}</h2>
+            <div class="profile-details">
+                <p><span>CNIC:</span> {{ profile[2] }}</p>
+                <p><span>Phone:</span> {{ profile[3] }}</p>
+                <p><span>Address:</span> {{ profile[4] }}</p>
             </div>
+            <a href="/edit_profile" class="view-btn" style="width: auto; margin-top: 20px; padding: 10px 25px;">Edit Profile</a>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="dashboard-title" style="margin-bottom: 0;">My Recent Bookings</h2>
+            <button type="submit" form="bulk-delete-form" class="remove-btn" id="bulk-delete-btn" style="display: none; padding: 10px 20px;">🗑️ Delete Selected</button>
         </div>
 
-        {% if role == 'seller' %}
-        <div class="box">
-            <h2 class="section-heading">Add New Service</h2>
+        <table class="elite-table" style="margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="select-all-bookings" style="cursor: pointer;"></th>
+                    <th>{% if role == 'seller' %}Customer{% else %}Provider{% endif %}</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th style="text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if bookings %}
+                {% for b in bookings %}
+                <tr>
+                    <td style="text-align: center;"><input type="checkbox" value="{{ b[8] }}" class="booking-checkbox" style="cursor: pointer;"></td>
+                    <td><strong>{{ b[1] }}</strong></td>
+                    <td>{{ b[2] }}</td>
+                    <td>{{ b[3] }}</td>
+                    <td style="color: var(--primary); font-weight: 700;">Rs. {{ b[10] }}</td>
+                    <td><span class="status-badge status-{{ b[6].lower() }}">{{ b[6] }}</span></td>
+                    <td style="text-align: center;">
+                        <div class="action-group"
+                            style="display: flex; gap: 8px; justify-content: center; align-items: center; height: 100%;">
 
-            <form action="/add_service" method="POST" class="form-grid">
-                <div>
-                    <label>Category:</label><br>
-                    <select name="category_id" required>
-                        {% for cat in categories %}
-                            <option value="{{ cat[0] }}">{{ cat[1] }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                            <button type="button" class="view-btn"
+                                onclick="showBookingDetails('{{ b[1] }}', '{{ b[2] }}', '{{ b[9] }}', '{{ b[7] }}', '{{ b[10] }}', '{{ b[4] }}', '{{ b[5] }}', {{ 1 if b[11] else 0 }})">
+                                Details
+                            </button>
 
-                <div>
-                    <label>Price/Hour (PKR):</label><br>
-                    <input type="number" name="price" placeholder="e.g. 1000" required>
-                </div>
+                            {% if b[12] and role == 'user' %} {# can_cancel #}
+    <form action="{{ url_for('cancel_booking', b_id=b[8]) }}" method="POST" style="display: inline-block;">
+        <button type="submit" class="remove-btn" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel</button>
+    </form>
+{% endif %}
 
-                <div>
-                    <label>Experience (Years):</label><br>
-                    <input type="number" name="experience" placeholder="e.g. 3" required>
-                </div>
+{% if b[13] %} {# can_delete #}
+    <form action="{{ url_for('delete_bookings') }}" method="POST" style="display: inline-block;">
+        <input type="hidden" name="booking_ids" value="{{ b[8] }}">
+        <button type="submit" class="remove-btn" style="background: #475569;" onclick="return confirm('Remove this booking from your history?')">Remove</button>
+    </form>
+{% endif %}
 
-                <div>
-                    <label>Short Description:</label><br>
-                    <textarea name="description" placeholder="Briefly describe your skill"></textarea>
-                </div>
+{% if b[14] and role == 'user' %} {# can_complete #}
+    <form action="{{ url_for('complete_booking', b_id=b[8]) }}" method="POST" style="display: inline-block;">
+        <button type="submit" class="view-btn" style="background: #10b981; border: none; color: white;"
+            onclick="return confirm('Mark this service as completed?')">✔ Complete</button>
+    </form>
+{% endif %}
 
-                <div class="form-submit">
-                    <button type="submit" class="action-btn">Confirm Service</button>
-                </div>
-            </form>
-        </div>
-        {% endif %}
+{% if b[15] and role == 'seller' %} {# can_update_payment #}
+    <form action="{{ url_for('update_payment', b_id=b[8]) }}" method="POST" style="display: inline-block;">
+        <button type="submit" class="view-btn" style="background: #f59e0b; border: none; color: white;"
+            onclick="return confirm('Confirm payment received?')">💰 Payment Received</button>
+    </form>
+{% endif %}
 
+{% if b[6].lower() == 'completed' and role == 'user' %}
+    {% if b[16] %}
+        <span style="color: #34d399; font-size: 0.85rem; font-weight: 600;">✅ Reviewed</span>
+    {% else %}
+        <button type="button" class="view-btn" style="background: #8b5cf6; border: none; color: white;"
+            onclick="showReviewModal('{{ b[8] }}', '{{ b[2] }}')">⭐ Review</button>
+    {% endif %}
+{% endif %}
+
+{% if role == 'seller' and b[6].lower() == 'pending' and not b[13] %}
+    <form action="{{ url_for('accept_booking', b_id=b[8]) }}" method="POST" style="display: inline-block;">
+        <button type="submit" class="view-btn" style="background: #10b981; border: none; color: white;">Accept</button>
+    </form>
+    <form action="{{ url_for('reject_booking', b_id=b[8]) }}" method="POST" style="display: inline-block;">
+        <button type="submit" class="remove-btn">Reject</button>
+    </form>
+{% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+
+        <form id="hidden-bulk-delete-form" action="/delete_bookings" method="POST" style="display: none;"></form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const selectAll = document.getElementById("select-all-bookings");
+            const checkboxes = document.querySelectorAll(".booking-checkbox");
+            const bulkBtn = document.getElementById("bulk-delete-btn");
+
+            function toggleBulkBtn() {
+                const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                bulkBtn.style.display = anyChecked ? "inline-block" : "none";
+            }
+
+            if(selectAll) {
+                selectAll.addEventListener("change", function() {
+                    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+                    toggleBulkBtn();
+                });
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener("change", function() {
+                    toggleBulkBtn();
+                    if(!cb.checked && selectAll) selectAll.checked = false;
+                });
+            });
+
+            if(bulkBtn) {
+                bulkBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    if(!confirm('Delete all selected bookings from your history?')) return;
+                    
+                    const form = document.getElementById("hidden-bulk-delete-form");
+                    form.innerHTML = ""; // Clear
+                    
+                    checkboxes.forEach(cb => {
+                        if(cb.checked) {
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = "booking_ids";
+                            input.value = cb.value;
+                            form.appendChild(input);
+                        }
+                    });
+                    
+                    if(form.children.length > 0) {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+
+    {% if role == 'seller' %}
+    <div class="admin-section" style="margin-top: 30px;">
+        <h2 class="dashboard-title">Add New Service</h2>
+        <form action="/add_service" method="POST">
+            <label class="filter-label">Category</label>
+            <select name="category_id" required class="form-input-field" style="width: 100%; margin-bottom: 15px;">
+                {% for cat in categories %}
+                <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="filter-label">Price / Hour (PKR)</label>
+            <input type="number" name="price" placeholder="e.g. 1000" required class="form-input-field">
+
+            <label class="filter-label">Experience (Years)</label>
+            <input type="number" name="experience" placeholder="e.g. 3" required class="form-input-field">
+
+            <label class="filter-label">Short Description</label>
+            <textarea name="description" placeholder="Briefly describe your skill" class="form-input-field"
+                style="height: 100px;"></textarea>
+
+            <button type="submit" class="form-submit-btn" style="margin-top: 10px;">Add Service</button>
+        </form>
+    </div>
+    {% endif %}
+
+</div>
+
+
+<div id="detailsModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div
+        style="background:#1e293b; padding:30px; border-radius:12px; width:400px; color:white; border:1px solid #334155;">
+        <h3 id="m-service" style="margin-top:0; color:#8b5cf6;"></h3>
+        <hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+        <p><strong>Customer/Provider:</strong> <span id="m-name"></span></p>
+        <p><strong>Address:</strong> <span id="m-address"></span></p>
+        <p><strong>Time:</strong> <span id="m-start"></span> – <span id="m-end"></span></p>
+        <p><strong>Instructions:</strong> <span id="m-inst"></span></p>
+        <p><strong>Total:</strong> Rs. <span id="m-cost"></span></p>
+        <p><strong>Payment:</strong> <span id="m-payment"></span></p>
+        <button onclick="document.getElementById('detailsModal').style.display='none'" class="remove-btn"
+            style="width:100%; margin-top:15px;">Close</button>
     </div>
 </div>
 
-<div id="infoModal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="close-modal-btn" onclick="closeModal()">X</button>
-        <h2 style="margin-top: 0; border-bottom: 2px solid black; padding-bottom: 10px;">Booking Details</h2>
-        
-        <p><strong>Name:</strong> <span id="modalName"></span></p>
-        <p><strong>Date:</strong> <span id="modalDate"></span></p>
-        <p><strong>Time:</strong> <span id="modalTime"></span></p>
-        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
-        <p><strong>Total Payment:</strong> <span id="modalPayment"></span> PKR</p>
-        
-        <p style="margin-bottom: 5px; margin-top: 15px;"><strong>Instructions / Info:</strong></p>
-        <div id="modalInstructions" class="modal-info-text"></div>
+<div id="reviewModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div
+        style="background:#1e293b; padding:30px; border-radius:12px; width:400px; color:white; border:1px solid #334155;">
+        <h3 style="margin-top:0; color:#8b5cf6; text-align:center;">Leave a Review</h3>
+        <p style="text-align:center; color:#94a3b8; font-size:0.9rem; margin-bottom:20px;">Rate your experience for
+            <strong id="r-service"></strong>
+        </p>
+        <form action="/add_review" method="POST">
+            <input type="hidden" name="booking_id" id="r-booking-id">
+
+            <div
+                style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 2rem; cursor: pointer;">
+                <input type="radio" name="rating" value="1" required style="display:none;" id="star1"><label for="star1"
+                    onclick="updateStars(1)">☆</label>
+                <input type="radio" name="rating" value="2" style="display:none;" id="star2"><label for="star2"
+                    onclick="updateStars(2)">☆</label>
+                <input type="radio" name="rating" value="3" style="display:none;" id="star3"><label for="star3"
+                    onclick="updateStars(3)">☆</label>
+                <input type="radio" name="rating" value="4" style="display:none;" id="star4"><label for="star4"
+                    onclick="updateStars(4)">☆</label>
+                <input type="radio" name="rating" value="5" style="display:none;" id="star5"><label for="star5"
+                    onclick="updateStars(5)">☆</label>
+            </div>
+
+            <label class="filter-label" style="display:block; margin-bottom:5px;">Comments (Optional)</label>
+            <textarea name="comment" placeholder="Tell us how it went..." class="form-input-field"
+                style="width:100%; height:80px; margin-bottom:15px;"></textarea>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="form-submit-btn" style="flex: 1;">Submit</button>
+                <button type="button" onclick="document.getElementById('reviewModal').style.display='none'"
+                    class="remove-btn" style="flex: 1;">Cancel</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
-    const buttons = document.querySelectorAll('.view-info-btn');
-    const modal = document.getElementById('infoModal');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            document.getElementById('modalName').textContent = this.getAttribute('data-name');
-            document.getElementById('modalDate').textContent = this.getAttribute('data-date');
-            document.getElementById('modalTime').textContent = this.getAttribute('data-time');
-            document.getElementById('modalAddress').textContent = this.getAttribute('data-address');
-            document.getElementById('modalPayment').textContent = this.getAttribute('data-payment');
-            document.getElementById('modalInstructions').textContent = this.getAttribute('data-instructions');
-            
-            modal.style.display = 'flex';
-        });
-    });
-
-    function closeModal() {
-        modal.style.display = 'none';
+    function showBookingDetails(name, service, address, instructions, cost, startTime, endTime, isPaid) {
+        document.getElementById('m-name').innerText = name;
+        document.getElementById('m-service').innerText = service;
+        document.getElementById('m-address').innerText = address;
+        document.getElementById('m-inst').innerText = instructions || 'No instructions';
+        document.getElementById('m-cost').innerText = cost;
+        document.getElementById('m-start').innerText = startTime;
+        document.getElementById('m-end').innerText = endTime;
+        const payEl = document.getElementById('m-payment');
+        payEl.innerText = isPaid ? '✅ Paid' : '⏳ Unpaid';
+        payEl.style.color = isPaid ? '#10b981' : '#f59e0b';
+        document.getElementById('detailsModal').style.display = 'flex';
     }
 
-    // Close modal if user clicks anywhere outside of the pop-up box
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            closeModal();
+    function showReviewModal(bookingId, serviceName) {
+        document.getElementById('r-booking-id').value = bookingId;
+        document.getElementById('r-service').innerText = serviceName;
+        document.getElementById('reviewModal').style.display = 'flex';
+        updateStars(0); 
+    }
+
+    function updateStars(rating) {
+        for (let i = 1; i <= 5; i++) {
+            const starLabel = document.querySelector(`label[for="star${i}"]`);
+            if (i <= rating) {
+                starLabel.innerText = '★';
+                starLabel.style.color = '#fbbf24';
+            } else {
+                starLabel.innerText = '☆';
+                starLabel.style.color = '#94a3b8';
+            }
         }
     }
 </script>
 
-{% endblock %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let unreadCount = 0;
+    let allNotifs = [];
+
+    const bellBtn = document.getElementById('cute-bell-btn');
+    const badge = document.getElementById('notif-badge');
+    const dropdown = document.getElementById('notif-dropdown');
+    const dropdownBody = document.getElementById('notif-dropdown-body');
+    const markReadBtn = document.getElementById('mark-read-btn');
+
+    bellBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (dropdown.style.display === 'none') {
+            dropdown.style.display = 'block';
+            setTimeout(() => {
+                dropdown.style.opacity = '1';
+                dropdown.style.transform = 'scale(1)';
+            }, 10);
+            
+            unreadCount = 0;
+            updateBadge();
+            
+            let seen = JSON.parse(localStorage.getItem('seen_notifications') || '[]');
+            allNotifs.forEach(n => {
+                if (!seen.includes(n.id)) seen.push(n.id);
+            });
+            localStorage.setItem('seen_notifications', JSON.stringify(seen));
+            
+        } else {
+            dropdown.style.opacity = '0';
+            dropdown.style.transform = 'scale(0.95)';
+            setTimeout(() => dropdown.style.display = 'none', 300);
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+            dropdown.style.opacity = '0';
+            dropdown.style.transform = 'scale(0.95)';
+            setTimeout(() => dropdown.style.display = 'none', 300);
+        }
+    });
+    
+    markReadBtn.addEventListener('click', function() {
+        dropdownBody.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 0.9rem;">All caught up!</div>';
+        allNotifs = [];
+    });
+
+    function fetchNotifications() {
+        fetch('/api/notifications')
+            .then(res => res.json())
+            .then(data => {
+                let seen = JSON.parse(localStorage.getItem('seen_notifications') || '[]');
+                let newNotifs = data.filter(n => !seen.includes(n.id));
+                
+                if (newNotifs.length > 0) {
+                    allNotifs = [...newNotifs, ...allNotifs];
+                    unreadCount += newNotifs.length;
+                    updateBadge();
+                    renderDropdown();
+                } else if (allNotifs.length === 0 && data.length > 0) {
+                    allNotifs = data;
+                    renderDropdown();
+                }
+            })
+            .catch(err => console.error(err));
+    }
+
+    function updateBadge() {
+        if (unreadCount > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = unreadCount;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function renderDropdown() {
+        if (allNotifs.length === 0) {
+            dropdownBody.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 0.9rem;">No new notifications yet!</div>';
+            return;
+        }
+        
+        dropdownBody.innerHTML = '';
+        allNotifs.forEach(notif => {
+            let color = "var(--primary)";
+            if (notif.title.includes("Accepted") || notif.title.includes("New")) color = "#34d399";
+            if (notif.title.includes("Rejected")) color = "#f87171";
+            
+            const item = document.createElement('div');
+            item.className = 'notif-item';
+            item.style.borderLeftColor = color;
+            item.innerHTML = `
+                <div class="notif-item-title" style="color: ${color};">${notif.title}</div>
+                <div class="notif-item-message">${notif.message}</div>
+            `;
+            dropdownBody.appendChild(item);
+        });
+    }
+
+    fetchNotifications();
+    setInterval(fetchNotifications, 10000);
+});
+</script>{% endblock %}
