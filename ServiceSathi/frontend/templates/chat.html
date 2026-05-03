@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}
+Chat with SaathiBot - Service Sathi
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; padding-top: 20px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-family: 'Fredoka', sans-serif; color: var(--primary); font-size: 2.5rem; margin-bottom: 10px;">Chat with SaathiBot</h1>
+        <p style="color: var(--text-light); font-size: 1.1rem;">Your AI assistant for Service Sathi. Ask me anything about our services!</p>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    {% if session.chat_history %}
+        <div class="chat-container">
+            {% for msg in session.chat_history %}
+                {% if msg.role == 'user' %}
+                    <div class="message user-message">
+                        <strong>You:</strong> {{ msg.content }}
+                    </div>
+                {% else %}
+                    <div class="message bot-message">
+                        <strong>SaathiBot:</strong> 
+                        {% autoescape false %}
+                        {{ msg.content | replace('\n', '<br>') }}
+                        {% endautoescape %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="chat-container" style="justify-content: center; align-items: center; min-height: 300px;">
+            <p style="color: var(--text-light); opacity: 0.7; text-align: center;">Send a message to start chatting with SaathiBot...</p>
+        </div>
+    {% endif %}
+
+    {% if providers %}
+        <div style="margin-top: 30px;">
+            <h3 style="text-align: center; margin-bottom: 20px;">Recommended Providers</h3>
+            {% for p in providers %}
+            <div class="provider-card-horizontal">
+                <div class="provider-thumb-wrapper">
+                    {% if p[6] and p[6] != 'None' and p[6] != '' %}
+                        {% if p[6].startswith('http') %}
+                        <img src="{{ p[6] }}" class="provider-thumb" alt="Profile" onerror="this.src='/static/images/default.png';">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/' + p[6]) }}" class="provider-thumb" alt="Profile" onerror="this.src='/static/images/default.png';">
+                        {% endif %}
+                    {% else %}
+                        <div class="letter-avatar" style="width: 85px; height: 85px; font-size: 2.2rem; border-radius: 8px;">
+                            {{ p[0][0] }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="provider-main-info">
+                    <h3 style="margin: 0; color: var(--text-dark);">{{ p[0] }}</h3>
+                    <div class="provider-stats">
+                        <span>⭐ {{ p[2] if p[2] else '0.0' }} Rating</span>
+                        <span style="margin-left: 15px;">🕒 {{ p[4] }} Years Exp</span>
+                    </div>
+                    <p style="color: var(--text-light); font-size: 0.95rem; margin-top: 10px;">{{ p[1] }}</p>
+                </div>
+
+                <div class="provider-price-tag">
+                    <h4 style="margin:0; font-size: 1.5rem; color: var(--primary);">Rs. {{ p[3] }}</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-light); margin: 0 0 15px 0;">per hour</p>
+                    <a href="{{ url_for('book_service', seller_id=p[5]) }}" class="book-btn-small">Book Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" class="chat-form" style="max-width: 800px; margin: 30px auto; display: flex; gap: 15px;">
+        <input type="text" id="message" name="message" placeholder="Type your message here... (e.g. 'I need a driver under 1000')" style="flex: 1; padding: 18px 25px; font-size: 1rem;" required>
+        <button type="submit" style="padding: 0 40px; font-size: 1.1rem;">Send</button>
+        {% if session.chat_history %}
+            <button type="submit" name="clear" value="true" formnovalidate class="view-btn btn-clear" style="background-color: transparent; border: 1px solid var(--danger, #dc3545); color: var(--danger, #dc3545); border-radius: 30px; padding: 0 30px; font-weight: 600; cursor: pointer; transition: 0.3s;">Clear</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
