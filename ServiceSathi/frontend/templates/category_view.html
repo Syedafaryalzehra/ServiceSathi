@@ -1,44 +1,121 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+    <h1 class="page-heading">Service Providers for: {{ category }}</h1>
 
-<h2 class="page-heading">Service Providers for: {{ category }}</h2>
-<div class="search-form"> <form method="GET" action="/category/{{ cat_id }}" style="display: flex; gap: 10px;">
-        <input type="text" 
-               name="seller_name" 
-               placeholder="Search sellers..." 
-               value="{{ seller_name if seller_name else '' }}">
-        
-        <input type="number" 
-               name="max_price" 
-               placeholder="Max price..." 
-               value="{{ max_price if max_price else '' }}"
-               style="width: 150px;"> <button type="submit" class="view-btn">Search</button>
-        <a href="/category/{{ cat_id }}" class="view-btn" style="background:#ffb8b8; text-decoration:none; display:inline-block; line-height:25px;">Clear</a>
-    </form>
-</div>
-<div class="providers-grid">
+   <form method="GET" action="{{ url_for('view_category', cat_id=cat_id) }}" class="filter-container">
+    <span class="filter-label">🔍 Quick Filters</span>
+    
+    <input type="text" name="seller_name" class="form-input-field" 
+           placeholder="Search by name..." value="{{ seller_name if seller_name else '' }}">
+           
+    <input type="number" name="max_price" class="form-input-field" 
+           placeholder="Max budget (Rs)..." value="{{ max_price if max_price else '' }}">
+           
+    <button type="submit" class="view-btn">Apply Filters</button>
+    
+    <a href="{{ url_for('view_category', cat_id=cat_id) }}" class="view-btn btn-clear">Clear</a>
+</form>
+
     {% if providers %}
-        {% for pro in providers %}
-        <div class="provider-card">
-            <div class="provider-left">
-                <img src="{{ pro[6] if pro[6] else '/static/images/default.png' }}" class="seller-img">
-            </div>
-            <div class="provider-right">
-                <h3>{{ pro.name }}</h3>
-                <p><strong>Rating:</strong> ⭐ {{ pro.average_rating }}</p>
-                <p><strong>Experience:</strong> {{ pro.experience_years }} Years</p>
-                <p><strong>Price:</strong> {{ pro.price_per_hour }} PKR/hr</p>
-                <p class="provider-desc">{{ pro.description }}</p>
-                {% if session.role == 'user' %}
-                    <a href="/book/{{ pro.seller_id }}" class="book-btn">Book Now</a>
+        {% for p in providers %}
+        <div class="provider-card-horizontal">
+            <div class="provider-thumb-wrapper">
+                {% if p[6] and p[6] != 'None' and p[6] != '' %}
+                    {% if p[6].startswith('http') %}
+                        <img src="{{ p[6] }}" class="provider-thumb" alt="Profile" onerror="this.src='/static/images/default.png';">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/' + p[6]) }}" 
+                             class="provider-thumb" alt="Profile" 
+                             onerror="this.src='/static/images/default.png';">
+                    {% endif %}
+                {% else %}
+                    <div class="letter-avatar" style="width: 85px; height: 85px; font-size: 2.2rem; border-radius: 8px;">
+                        {{ p[0][0] }}
+                    </div>
                 {% endif %}
+            </div>
+            
+            <div class="provider-main-info">
+                <h3 style="margin: 0; color: var(--text-dark);">{{ p[0] }}</h3>
+                <div class="provider-stats">
+                    <span style="cursor: pointer; color: var(--primary); font-weight: 600;" 
+                          onclick="openReviewsModal('{{ p[5] }}', '{{ p[0] }}')">
+                        ⭐ {{ p[2] if p[2] else '0.0' }} ({{ p[8] }} reviews)
+                    </span>
+                    <span style="margin-left: 15px;">🕒 {{ p[4] }} Years Exp</span>
+                </div>
+                <p style="color: var(--text-light); font-size: 0.95rem; margin-top: 10px;">{{ p[1] }}</p>
+            </div>
+
+            <div class="provider-price-tag">
+                <h4 style="margin:0; font-size: 1.5rem; color: var(--primary);">Rs. {{ p[3] }}</h4>
+                <p style="font-size: 0.8rem; color: var(--text-light); margin: 0 0 15px 0;">per hour</p>
+                <a href="{{ url_for('book_service', seller_id=p[5]) }}" class="book-btn-small">Book Now</a>
             </div>
         </div>
         {% endfor %}
     {% else %}
-        <p style="text-align:center;">No providers found matching these filters.</p>
+        <div class="admin-section" style="text-align: center; padding: 60px;">
+            <p style="color: var(--text-light); font-size: 1.1rem;">No providers found matching your criteria.</p>
+            <a href="{{ url_for('view_category', cat_id=cat_id) }}" style="color: var(--primary); text-decoration: none;">View all providers</a>
+        </div>
     {% endif %}
 </div>
 
+<!-- Reviews Modal -->
+<div id="reviewsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; padding: 20px;">
+    <div style="background:#1e293b; padding:30px; border-radius:12px; width:100%; max-width:500px; max-height: 80vh; overflow-y: auto; color:white; border:1px solid #334155; position: relative;">
+        <button onclick="document.getElementById('reviewsModal').style.display='none'" 
+                style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 id="rev-title" style="margin-top:0; color:#8b5cf6;">Reviews for Provider</h3>
+        <hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+        <div id="reviews-container">
+            <p style="text-align: center; color: #94a3b8;">Loading reviews...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function openReviewsModal(sellerId, name) {
+    const modal = document.getElementById('reviewsModal');
+    const container = document.getElementById('reviews-container');
+    const title = document.getElementById('rev-title');
+    
+    title.innerText = `Reviews for ${name}`;
+    container.innerHTML = '<p style="text-align: center; color: #94a3b8;">Loading reviews...</p>';
+    modal.style.display = 'flex';
+    
+    fetch(`/api/reviews/${sellerId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8;">No reviews yet for this provider.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(r => `
+                <div style="padding: 15px 0; border-bottom: 1px solid #334155;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong style="color: #f59e0b;">${'⭐'.repeat(r.rating)}</strong>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">${r.date}</span>
+                    </div>
+                    <p style="margin: 5px 0; font-size: 0.95rem;">${r.comment}</p>
+                    <small style="color: #8b5cf6;">— ${r.user}</small>
+                </div>
+            `).join('');
+        })
+        .catch(err => {
+            container.innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load reviews.</p>';
+        });
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('reviewsModal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
 {% endblock %}
