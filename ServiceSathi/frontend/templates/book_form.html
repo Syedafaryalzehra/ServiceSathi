@@ -1,61 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="login-box booking-container">
-    <h2 class="page-heading">Book {{ details[0] }}</h2>
-    
-    <p class="rate-display">
-        <strong>Category:</strong> {{ details[3] }} | 
-        <strong>Rate:</strong> <span id="rate">{{ details[1] }}</span> PKR/hr
-    </p>
-    
-    <form method="POST" class="login-form" id="bookingForm">
-        <input type="hidden" name="service_id" value="{{ details[2] }}">
+<div class="container">
+    <div class="form-container-box" style="max-width: 700px; margin: 40px auto;">
+        <h2 class="page-heading">Book {{ details[0] }}</h2>
         
-        <label for="booking_date">Date of Service:</label>
-        <input type="date" name="booking_date" id="booking_date" required min="{{ today }}">
+        <p class="rate-display" style="margin-bottom: 30px; color: var(--text-light);">
+            <strong>Category:</strong> {{ details[3] }} | 
+            <strong>Rate:</strong> <span id="rate" style="color: var(--primary); font-weight: bold;">{{ details[1] }}</span> PKR/hr
+        </p>
         
-        <div class="time-grid">
-            <div class="input-group">
-                <label for="startTime">Start Time:</label>
-                <input type="time" name="start_time" id="startTime" required onchange="calculateTotal()">
+        <form method="POST" class="booking-form-elite" id="bookingForm">
+            <input type="hidden" name="service_id" value="{{ details[2] }}">
+            
+            <label class="filter-label">Date of Service</label>
+            <input type="date" name="booking_date" class="form-input-field" required min="{{ today }}">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="input-group">
+                    <label class="filter-label">Start Time</label>
+                    <input type="time" name="start_time" id="startTime" class="form-input-field" required onchange="calculateTotal()">
+                </div>
+                <div class="input-group">
+                    <label class="filter-label">End Time</label>
+                    <input type="time" name="end_time" id="endTime" class="form-input-field" required onchange="calculateTotal()">
+                </div>
             </div>
-            <div class="input-group">
-                <label for="endTime">End Time:</label>
-                <input type="time" name="end_time" id="endTime" required onchange="calculateTotal()">
+
+            <div class="estimate-wrapper" style="background: rgba(129, 140, 248, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid var(--primary); text-align: center; font-weight: bold;">
+                Estimated Total: <span id="totalAmount" style="color: var(--primary); font-size: 1.2rem;">0</span> PKR
             </div>
-        </div>
 
-        <div class="estimate-wrapper">
-            Estimated Amount: <span id="totalAmount">0</span> PKR
-        </div>
+            <label class="filter-label">Your Address (Lahore)</label>
+            <textarea name="address" class="form-input-field" required placeholder="Street, Phase, Area..." style="height: 80px; resize: none;"></textarea>
 
-        <label for="address">Your Address (Lahore):</label>
-        <textarea name="address" id="address" required placeholder="Enter complete address..."></textarea>
+            <label class="filter-label">Instructions for Seller</label>
+            <textarea name="instructions" class="form-input-field" required placeholder="e.g. Bring a ladder..." style="height: 80px; resize: none;"></textarea>
 
-        <label for="instructions">Instructions for Seller (Mandatory):</label>
-        <textarea name="instructions" id="instructions" required placeholder="Describe the problem..."></textarea>
-
-        <button type="submit" class="login-btn">Confirm Booking</button>
-        <a href="/" class="cancel-link">Cancel</a>
-    </form>
+            <button type="submit" class="form-submit-btn">Confirm Booking</button>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="javascript:history.back()" style="color: var(--text-light); text-decoration: none; font-size: 0.9rem;">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
 function calculateTotal() {
     const start = document.getElementById('startTime').value;
     const end = document.getElementById('endTime').value;
-    const rate = parseFloat(document.getElementById('rate').innerText);
+    const rateElement = document.getElementById('rate');
+    const rate = parseFloat(rateElement.innerText);
 
     if (start && end) {
         const [sH, sM] = start.split(':').map(Number);
         const [eH, eM] = end.split(':').map(Number);
-        
         const startDate = new Date(0, 0, 0, sH, sM);
         const endDate = new Date(0, 0, 0, eH, eM);
-        
         let diff = (endDate - startDate) / (1000 * 60 * 60);
-        
         const display = document.getElementById('totalAmount');
         if (diff > 0) {
             display.innerText = (diff * rate).toFixed(2);
