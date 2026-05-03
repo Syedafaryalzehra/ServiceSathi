@@ -5,60 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Service Sathi{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap" rel="stylesheet">
-    <style>
-        nav { background: #d8c9f0; padding: 1rem; color: white; display: flex; gap: 20px; }
-        nav a { color: rgb(0, 0, 0); text-decoration: none; font-weight: bold; }
-        footer { margin-top: 50px; text-align: center; font-size: 0.8rem; color: #666; }
-        .container { padding: 20px; max-width: 1200px; margin: auto; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+<nav style="max-height: 70px; padding: 0 40px;">
+    <a href="/" class="logo" style="text-decoration: none; display: flex; align-items: center; margin-left: -50px;">
+        <img src="{{ url_for('static', filename='images/new_logo.png') }}" alt="Service Sathi" 
+             style="height: 90px; width: auto; display: block; mix-blend-mode: screen; 
+                    filter: brightness(1.7) contrast(1.3); transform: scale(2.1); transform-origin: left center;">
+    </a>
 
-<nav>
-    <div class="logo"><strong>Service Sathi.pk</strong></div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
 
-    <div class="nav-links">
-        <a class="logolinks" href="/">Home</a>
-
-       {% if session.loggedin %}
-    
-    {% if session.role != 'admin' %}
-        <a class="logolinks" href="/dashboard">Profile</a>
-    {% else %}
-        <a class="logolinks" href="/admin_dashboard">Admin Panel</a>
-    {% endif %}
-
-    <a class="logolinks" href="/logout">Logout</a>
+    <div class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        {% if session.loggedin %}
+            {% if session.role != 'admin' %}
+                <a href="/dashboard">Profile</a>
+            {% else %}
+                <a href="/admin_dashboard">Admin Panel</a>
+            {% endif %}
+            <a href="/logout">Logout</a>
         {% else %}
-            <a class="logolinks" href="/register">Register</a>
-            <a class="logolinks" href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/login">Login</a>
         {% endif %}
     </div>
 </nav>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div style="width: 520px; margin: 20px auto 0 auto;">
-          {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
-    </div>
-    {% endfor %}
+<script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        navToggle.classList.toggle('open', isOpen);
+        navToggle.setAttribute('aria-expanded', isOpen);
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('open');
+            navToggle.classList.remove('open');
+            navToggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+</script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="max-width: 520px; margin: 20px auto 0 auto;">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
         </div>
-      {% endif %}
-    {% endwith %}
-
-    <div class="container">
-        {% block content %}{% endblock %}
+      {% endfor %}
     </div>
+  {% endif %}
+{% endwith %}
 
-    <footer>
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    <div class="footer-content">
         <p>&copy; 2026 Service Sathi - Connecting Lahore with Quality Services</p>
         <div class="footer-text">
-    Contact us: servicesathihelp@gmail.com
-</div>
-    </footer>
+            Contact us: <span style="color: var(--secondary);">servicesathihelp@gmail.com</span>
+        </div>
+    </div>
+</footer>
 
+<a href="/chat" class="chatbot-float-btn">
+    <img src="{{ url_for('static', filename='images/chatbot_avatar.png') }}" alt="AI Chatbot">
+    <div class="chatbot-tooltip">Ask SaathiBot!</div>
+</a>
 </body>
 </html>
