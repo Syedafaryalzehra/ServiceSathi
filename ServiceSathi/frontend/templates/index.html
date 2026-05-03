@@ -4,38 +4,676 @@
 
 {% block content %}
 
+<div class="hourglass-hero">
+    <div class="hero-text-section">
+        <div class="hero-badge">⚡ FAST, RELIABLE & PROFESSIONAL</div>
+        <h1 class="hero-title">
+            Home Services <br><span class="gradient-text">Redefined.</span>
+        </h1>
+        <p class="hero-subtitle">
+            Connecting Lahore with top-tier technicians for seamless, high-quality home maintenance. Experience the
+            future of service booking.
+        </p>
 
-<form method="GET" action="{{ url_for('home') }}" class="search-form">
+        <div class="spotlight-backdrop" id="spotlightBackdrop"></div>
+        <div class="spotlight-wrapper" id="spotlightWrapper">
+            <svg class="spotlight-trace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="trace-rect" x="0.5" y="0.5" width="99" height="99" rx="50" ry="50"/>
+            </svg>
+            <div class="spotlight-glow" id="spotlightGlow"></div>
+            <form action="/" method="GET" class="spotlight-form" autocomplete="off">
+                <span class="spotlight-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </span>
+                <input type="text" name="search" id="hero-search-input"
+                    placeholder="What service do you need today?"
+                    value="{{ search_query if search_query else '' }}"
+                    autocomplete="off" spellcheck="false">
+                <div class="mag-wrap" id="magWrap">
+                    <button type="submit" class="spotlight-btn" id="spotlightBtn">
+                        <span class="spotlight-btn-text">Search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <input type="text"
-           name="search"
-           placeholder="Search categories..."
-           value="{{ search_query if search_query else '' }}">
-
-    <button type="submit" class="view-btn">Search</button>
-
-</form>
-<h1 class="page-heading">Service Categories</h1>
-<div class="category-grid">
-
-    {% for category in categories %}
-
-    <div class="category-card">
-
-    <img src="{{ url_for('static', filename='images/' + category[0]|lower + '.jpg') }}" class="category-img">
-
-    <h3>{{ category[0] }}</h3>
-
-    <p>{{ category[1] }}</p>
-
-    <a href="{{ url_for('view_category', cat_id=category[2]) }}" class="view-btn">
-        View Providers
-    </a>
-
+    </div>
+    <div class="hero-image-section" id="hero-canvas-container">
+        <canvas id="hero-canvas"></canvas>
+    </div>
 </div>
 
-    {% endfor %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById('hero-canvas-container');
+        const canvas = document.getElementById('hero-canvas');
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const vertexShader = `
+            varying vec2 vUv;
+            varying float vDistortion;
+            uniform float uTime;
+            
+            vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+            vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+            float snoise(vec3 v) {
+                const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+                const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i  = floor(v + dot(v, C.yyy) );
+                vec3 x0 =   v - i + dot(i, C.xxx) ;
+                vec3 g = step(x0.yzx, x0.xyz);
+                vec3 l = 1.0 - g;
+                vec3 i1 = min( g.xyz, l.zxy );
+                vec3 i2 = max( g.xyz, l.zxy );
+                vec3 x1 = x0 - i1 + C.xxx;
+                vec3 x2 = x0 - i2 + C.yyy;
+                vec3 x3 = x0 - D.yyy;
+                i = mod289(i);
+                vec4 p = permute( permute( permute(
+                            i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                        + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+                        + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                float n_ = 0.142857142857;
+                vec3  ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_ );
+                vec4 x = x_ *ns.x + ns.yyyy;
+                vec4 y = y_ *ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4( x.xy, y.xy );
+                vec4 b1 = vec4( x.zw, y.zw );
+                vec4 s0 = floor(b0)*2.0 + 1.0;
+                vec4 s1 = floor(b1)*2.0 + 1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                vec3 p0 = vec3(a0.xy,h.x);
+                vec3 p1 = vec3(a0.zw,h.y);
+                vec3 p2 = vec3(a1.xy,h.z);
+                vec3 p3 = vec3(a1.zw,h.w);
+                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+            }
+
+            void main() {
+                vUv = uv;
+                float distortion = snoise(vec3(position.x * 0.5, position.y * 0.5 + uTime * 0.2, position.z * 0.5)) * 0.6;
+                vDistortion = distortion;
+                vec3 newPosition = position + normal * distortion;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            varying vec2 vUv;
+            varying float vDistortion;
+            uniform float uTime;
+            
+            void main() {
+                vec3 color1 = vec3(0.66, 0.33, 0.97);
+                vec3 color2 = vec3(0.02, 0.71, 0.83);
+                vec3 finalColor = mix(color1, color2, vDistortion + 0.5);
+                float alpha = 0.4 + vDistortion * 0.3;
+                gl_FragColor = vec4(finalColor, alpha);
+            }
+        `;
+
+        const geometry = new THREE.IcosahedronGeometry(3.2, 74);
+        const material = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: {
+                uTime: { value: 0 },
+                uPulse: { value: 1.0 }
+            },
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const blob = new THREE.Mesh(geometry, material);
+        scene.add(blob);
+
+        const logoTexture = new THREE.TextureLoader().load("{{ url_for('static', filename='images/new_logo.png') }}");
+        const logoMaterial = new THREE.MeshBasicMaterial({
+            map: logoTexture,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            opacity: 0.95,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const logoPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.0, 3.0), logoMaterial);
+        scene.add(logoPlane);
+
+        const sprites = [];
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.1 });
+        const lineGeometry = new THREE.BufferGeometry();
+        const lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+        scene.add(lineMesh);
+
+        const MAX_SPRITES = 12;
+        const linePositionsBuffer = new Float32Array(MAX_SPRITES * 6);
+        const lineBufferAttr = new THREE.BufferAttribute(linePositionsBuffer, 3);
+        lineBufferAttr.setUsage(THREE.DynamicDrawUsage);
+        lineGeometry.setAttribute('position', lineBufferAttr);
+
+        const services = [
+            { icon: '🔧', name: 'Plumbing' }, { icon: '🧹', name: 'Cleaning' },
+            { icon: '🔌', name: 'Electrician' }, { icon: '🚗', name: 'Driving' },
+            { icon: '🍳', name: 'Cooking' }, { icon: '👶', name: 'Babysitting' }
+        ];
+
+        function createEmojiTexture(emoji) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.font = '80px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        for (let i = 0; i < services.length; i++) {
+            const spriteMaterial = new THREE.SpriteMaterial({ map: createEmojiTexture(services[i].icon), transparent: true, opacity: 0.9 });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            const phi = Math.acos(-1 + (2 * i) / services.length);
+            const theta = Math.sqrt(services.length * Math.PI) * phi;
+            sprite.position.set(4 * Math.cos(theta) * Math.sin(phi), 4 * Math.sin(theta) * Math.sin(phi), 4 * Math.cos(phi));
+            sprite.scale.set(1.1, 1.1, 1);
+            scene.add(sprite);
+            sprites.push({ obj: sprite, origin: sprite.position.clone(), angle: Math.random() * Math.PI * 2 });
+        }
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const pLight = new THREE.PointLight(0xa855f7, 4);
+        pLight.position.set(5, 5, 5);
+        scene.add(pLight);
+        camera.position.z = 8;
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const spriteObjects = sprites.map(s => s.obj);
+
+        let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+        let pulseSpeed = 1.0;
+
+        let rawMouseX = 0, rawMouseY = 0;
+        let jibbitMouseX = 0, jibbitMouseY = 0;
+        let lerpedJibbitX = 0, lerpedJibbitY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            rawMouseX = (event.clientX - window.innerWidth / 2) / 100;
+            rawMouseY = (event.clientY - window.innerHeight / 2) / 100;
+            jibbitMouseX = rawMouseX;
+            jibbitMouseY = rawMouseY;
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        });
+
+        const jibbits = document.querySelectorAll('.jibbit');
+
+        let lastTime = 0;
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min((time - lastTime) / 1000, 0.05);
+            lastTime = time;
+
+            const lerpAlpha = 1 - Math.pow(0.95, dt * 60);
+
+            pulseSpeed = 1.0;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(spriteObjects);
+            sprites.forEach(s => s.obj.scale.set(0.7, 0.7, 1));
+            if (intersects.length > 0) {
+                intersects[0].object.scale.set(1.0, 1.0, 1);
+                pulseSpeed = 2.5;
+            }
+
+            material.uniforms.uTime.value += 0.005 * pulseSpeed;
+
+            targetX += (rawMouseX - targetX) * lerpAlpha;
+            targetY += (rawMouseY - targetY) * lerpAlpha;
+            scene.rotation.y = targetX * 0.2;
+            scene.rotation.x = targetY * 0.2;
+
+            lerpedJibbitX += (jibbitMouseX - lerpedJibbitX) * lerpAlpha;
+            lerpedJibbitY += (jibbitMouseY - lerpedJibbitY) * lerpAlpha;
+            jibbits.forEach((j, i) => {
+                const speed = (i + 1) * 20;
+                j.style.transform = `translate(${lerpedJibbitX * speed}px, ${lerpedJibbitY * speed}px)`;
+            });
+
+            logoPlane.lookAt(camera.position);
+            sprites.forEach((s, idx) => {
+                s.angle += 0.003;
+                s.obj.position.x = s.origin.x + Math.sin(s.angle) * 0.3;
+                s.obj.position.y = s.origin.y + Math.cos(s.angle) * 0.3;
+                const base = idx * 6;
+                linePositionsBuffer[base] = 0;
+                linePositionsBuffer[base + 1] = 0;
+                linePositionsBuffer[base + 2] = 0;
+                linePositionsBuffer[base + 3] = s.obj.position.x;
+                linePositionsBuffer[base + 4] = s.obj.position.y;
+                linePositionsBuffer[base + 5] = s.obj.position.z;
+            });
+            lineBufferAttr.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+        animate(0);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+    });
+</script>
+
+<div class="cyl-section">
+    <div class="cyl-header">
+        <h2 class="features-title">Popular Categories</h2>
+        <p class="features-subtitle">Scroll through to explore our services.</p>
+    </div>
+
+    <div class="cyl-track">
+        {% for category in categories %}
+        <div class="cyl-item" data-index="{{ loop.index0 }}">
+            <div class="cyl-card">
+                <div class="cyl-ring"></div>
+                <div class="cyl-img-layer">
+                    <svg width="0" height="0" style="position:absolute;">
+                        <defs>
+                            <clipPath id="cyl-blob-{{ loop.index }}" clipPathUnits="objectBoundingBox">
+                                <path class="cyl-blob-path"
+                                    d="M0.5,0.5 m-0.001,0 a0.001,0.001 0 1,0 0.002,0 a0.001,0.001 0 1,0 -0.002,0" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <img src="{{ url_for('static', filename='images/' + category[0]|lower|replace(' ', '_') + '.jpg') }}"
+                    class="cyl-img"
+                    onerror="if(this.src.indexOf('default_category.jpg')==-1){this.src='{{ url_for('static', filename='images/default_category.jpg') }}';}">
+                </div>
+                <div class="cyl-glass"></div>
+                <div class="cyl-scanner"></div>
+                <div class="cyl-content">
+                    <div class="cyl-icon" aria-hidden="true"></div>
+                    <h3 class="cyl-title">{{ category[0] }}</h3>
+                    <p class="cyl-desc">{{ category[1] }}</p>
+                    <a href="{{ url_for('view_category', cat_id=category[2]) }}" class="cyl-btn">
+                        <span>Explore</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
+<svg width="0" height="0" style="position:absolute;overflow:hidden;" aria-hidden="true">
+    <defs>
+        <linearGradient id="traceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#a855f7" stop-opacity="0"/>
+            <stop offset="40%"  stop-color="#a855f7" stop-opacity="1"/>
+            <stop offset="70%"  stop-color="#06b6d4" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+        </linearGradient>
+    </defs>
+</svg>
+
+<script>
+(function () {
+    'use strict';
+
+    const wrapper  = document.getElementById('spotlightWrapper');
+    const backdrop = document.getElementById('spotlightBackdrop');
+    const input    = document.getElementById('hero-search-input');
+    const glow     = document.getElementById('spotlightGlow');
+    const magWrap  = document.getElementById('magWrap');
+    const btn      = document.getElementById('spotlightBtn');
+
+    if (!wrapper || !input || !btn) return;
+
+    let magX = 0, magY = 0;
+    let targetMagX = 0, targetMagY = 0;
+    let magActive = false;
+    let rafId = null;
+    let glowTimer = null;
+
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    let lastT = 0;
+    function tick(t) {
+        rafId = requestAnimationFrame(tick);
+
+        const dt = Math.min((t - lastT) / 1000, 0.05);
+        lastT = t;
+        const alpha = 1 - Math.pow(1 - 0.12, dt * 60);
+
+        magX = lerp(magX, magActive ? targetMagX : 0, alpha);
+        magY = lerp(magY, magActive ? targetMagY : 0, alpha);
+
+        if (Math.abs(magX) > 0.01 || Math.abs(magY) > 0.01 || magActive) {
+            magWrap.style.transform = `translate(${magX.toFixed(2)}px, ${magY.toFixed(2)}px)`;
+        }
+
+        if (!magActive && Math.abs(magX) < 0.05 && Math.abs(magY) < 0.05) {
+            magWrap.style.transform = 'translate(0px,0px)';
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+    }
+
+    function startLoop() {
+        if (!rafId) {
+            lastT = performance.now();
+            rafId = requestAnimationFrame(tick);
+        }
+    }
+
+    function activate() {
+        wrapper.classList.add('active');
+        backdrop.classList.add('active');
+    }
+
+    function deactivate() {
+        wrapper.classList.remove('active');
+        backdrop.classList.remove('active');
+        glow.classList.remove('typing');
+        clearTimeout(glowTimer);
+    }
+
+    input.addEventListener('focus', activate);
+    input.addEventListener('blur',  deactivate);
+
+    backdrop.addEventListener('click', () => {
+        input.blur();
+    });
+
+    input.addEventListener('input', () => {
+        if (input.value.trim().length > 0) {
+            glow.classList.add('typing');
+            clearTimeout(glowTimer);
+            glowTimer = setTimeout(() => glow.classList.remove('typing'), 2000);
+        } else {
+            glow.classList.remove('typing');
+        }
+    });
+
+    magWrap.addEventListener('mouseenter', () => {
+        magActive = true;
+        startLoop();
+    });
+
+    magWrap.addEventListener('mouseleave', () => {
+        magActive = false;
+        startLoop();
+    });
+
+    magWrap.addEventListener('mousemove', (e) => {
+        const rect = magWrap.getBoundingClientRect();
+        const cx = rect.left + rect.width  / 2;
+        const cy = rect.top  + rect.height / 2;
+        targetMagX = (e.clientX - cx) * 0.38;
+        targetMagY = (e.clientY - cy) * 0.38;
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.activeElement === input) {
+            input.blur();
+        }
+    });
+
+})();
+</script>
+
+<script>
+    (function () {
+        'use strict';
+
+        const LERP = 0.08;
+        const MAX_ROTATE_X = 22;
+        const MAX_SCALE_OFF = 0.12;
+        const MAX_TRANS_Z = -80;
+        const LOCAL_TILT = 12;
+
+        const items = Array.from(document.querySelectorAll('.cyl-item'));
+        const state = items.map(() => ({
+            currentRotX: 0, targetRotX: 0,
+            currentScale: 1, targetScale: 1,
+            currentTZ: 0, targetTZ: 0,
+            currentOp: 1, targetOp: 1,
+            currentCardRotX: 0, targetCardRotX: 0,
+            currentCardRotY: 0, targetCardRotY: 0,
+            isHovered: false,
+        }));
+
+        let rafId = null;
+        let needsTick = true;
+
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        let cachedRects = [];
+        function cacheRects() {
+            cachedRects = items.map(item => item.getBoundingClientRect());
+        }
+        cacheRects();
+
+        function computeTargets() {
+            const vh = window.innerHeight;
+            const cy = vh / 2;
+
+            items.forEach((item, i) => {
+                const rect = cachedRects[i];
+                const cardCY = rect.top + window.scrollY + rect.height / 2 - window.scrollY;
+
+                const dist = (cardCY - cy) / (vh * 0.6);
+                const clamped = Math.max(-1, Math.min(1, dist));
+
+                state[i].targetRotX = clamped * MAX_ROTATE_X;
+                state[i].targetScale = 1 - Math.abs(clamped) * MAX_SCALE_OFF;
+                state[i].targetTZ = clamped * clamped * MAX_TRANS_Z;
+                state[i].targetOp = 1 - Math.abs(clamped) * 0.35;
+            });
+        }
+
+        function tick() {
+            let stillAnimating = false;
+
+            items.forEach((item, i) => {
+                const s = state[i];
+                const card = item.querySelector('.cyl-card');
+
+                s.currentRotX = lerp(s.currentRotX, s.targetRotX, LERP);
+                s.currentScale = lerp(s.currentScale, s.targetScale, LERP);
+                s.currentTZ = lerp(s.currentTZ, s.targetTZ, LERP);
+                s.currentOp = lerp(s.currentOp, s.targetOp, LERP);
+
+                s.currentCardRotX = lerp(s.currentCardRotX, s.targetCardRotX, 0.1);
+                s.currentCardRotY = lerp(s.currentCardRotY, s.targetCardRotY, 0.1);
+
+                item.style.transform =
+                    `rotateX(${s.currentRotX.toFixed(3)}deg)` +
+                    ` scale(${s.currentScale.toFixed(4)})` +
+                    ` translateZ(${s.currentTZ.toFixed(3)}px)`;
+                item.style.opacity = s.currentOp.toFixed(4);
+
+                if (s.isHovered || Math.abs(s.currentCardRotX) > 0.05 || Math.abs(s.currentCardRotY) > 0.05) {
+                    card.style.transform =
+                        `perspective(900px)` +
+                        ` rotateX(${s.currentCardRotX.toFixed(3)}deg)` +
+                        ` rotateY(${s.currentCardRotY.toFixed(3)}deg)` +
+                        (s.isHovered ? ' scale3d(1.04,1.04,1.04)' : '');
+                }
+
+                if (
+                    Math.abs(s.currentRotX - s.targetRotX) > 0.01 ||
+                    Math.abs(s.currentScale - s.targetScale) > 0.0001 ||
+                    Math.abs(s.currentTZ - s.targetTZ) > 0.05 ||
+                    Math.abs(s.currentCardRotX - s.targetCardRotX) > 0.05 ||
+                    Math.abs(s.currentCardRotY - s.targetCardRotY) > 0.05
+                ) stillAnimating = true;
+            });
+
+            if (stillAnimating || needsTick) {
+                rafId = requestAnimationFrame(tick);
+            } else {
+                rafId = null;
+            }
+        }
+
+        function startTick() {
+            if (!rafId) rafId = requestAnimationFrame(tick);
+        }
+
+        function onScroll() {
+            needsTick = true;
+            computeTargets();
+            startTick();
+            clearTimeout(onScroll._t);
+            onScroll._t = setTimeout(() => { needsTick = false; }, 600);
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        window.addEventListener('resize', () => {
+            cacheRects();
+            computeTargets();
+            startTick();
+        }, { passive: true });
+
+        items.forEach((item, i) => {
+            const s = state[i];
+            const card = item.querySelector('.cyl-card');
+            let cachedItemRect = null;
+
+            item.addEventListener('mouseenter', () => {
+                cachedItemRect = item.getBoundingClientRect();
+                s.isHovered = true;
+                startTick();
+            });
+
+            item.addEventListener('mousemove', (e) => {
+                if (!cachedItemRect) return;
+                const nx = (e.clientX - cachedItemRect.left) / cachedItemRect.width - 0.5;
+                const ny = (e.clientY - cachedItemRect.top) / cachedItemRect.height - 0.5;
+                s.targetCardRotX = -ny * LOCAL_TILT * 2;
+                s.targetCardRotY = nx * LOCAL_TILT * 2;
+            });
+
+            item.addEventListener('mouseleave', () => {
+                s.isHovered = false;
+                s.targetCardRotX = 0;
+                s.targetCardRotY = 0;
+                cachedItemRect = null;
+                startTick();
+            });
+        });
+
+        const BLOB = {
+            hidden: 'M0.5,0.5 m-0.001,0 a0.001,0.001 0 1,0 0.002,0 a0.001,0.001 0 1,0 -0.002,0',
+            visible: 'M0.5,0.05 C0.75,0.02 0.98,0.25 0.95,0.5 C0.92,0.75 0.75,0.98 0.5,0.95 C0.25,0.92 0.02,0.75 0.05,0.5 C0.08,0.25 0.25,0.08 0.5,0.05'
+        };
+
+        function parseNums(d) { return (d.match(/-?[0-9]*\.?[0-9]+/g) || []).map(Number); }
+        function rebuildPath(template, nums) {
+            let i = 0;
+            return template.replace(/-?[0-9]*\.?[0-9]+/g, () => (nums[i++] ?? 0).toFixed(4));
+        }
+
+        function morphBlob(el, from, to, ms) {
+            const t0 = performance.now();
+            const fv = parseNums(from), tv = parseNums(to);
+            if (fv.length !== tv.length) return;
+            (function step(now) {
+                const p = Math.min((now - t0) / ms, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                el.setAttribute('d', rebuildPath(from, fv.map((v, i) => v + (tv[i] - v) * ease)));
+                if (p < 1) requestAnimationFrame(step);
+            })(t0);
+        }
+
+        items.forEach(item => {
+            const blob = item.querySelector('.cyl-blob-path');
+            if (!blob) return;
+            item.addEventListener('mouseenter', () => morphBlob(blob, BLOB.hidden, BLOB.visible, 580));
+            item.addEventListener('mouseleave', () => morphBlob(blob, BLOB.visible, BLOB.hidden, 460));
+        });
+       
+        assignIcons();
+
+        computeTargets();
+        startTick();
+        needsTick = false;
+
+    })();
+</script>
+
+<div class="features-section">
+    <div class="boxed-features-wrapper">
+        <h2 class="features-title">Why Lahore Loves Us</h2>
+        <p class="features-subtitle">The smartest way to hire professional services for your home.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper"><span class="feature-icon">🛡️</span></div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Vetted Experts</h3>
+                    <p class="feature-desc">Every seller goes through a strict verification process. Rest easy knowing
+                        you're hiring top-rated, safe, and reliable professionals.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper"><span class="feature-icon">💸</span></div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Upfront Pricing</h3>
+                    <p class="feature-desc">No hidden fees, no last-minute haggling. See the exact hourly rate and total
+                        estimated payment before you even click book.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper"><span class="feature-icon">🤖</span></div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Smart AI Match</h3>
+                    <p class="feature-desc">Meet Saathi Bot—our advanced AI matchmaker. Just type what you need, and it
+                        instantly connects you with the perfect professional.</p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper"><span class="feature-icon">⚡</span></div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Lightning Fast</h3>
+                    <p class="feature-desc">Forget making 10 phone calls. Browse categories, select your time slot, and
+                        get your booking accepted by a pro in a matter of minutes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
