@@ -1,74 +1,76 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1 class="title">Service Sathi</h1>
-
-<div class="login-box">
-
+<div class="form-container-box">
+    <h1 class="page-heading" style="text-align: center;color:white; margin-top: 0;">Welcome Back</h1>
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert {{ category }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-    <form action="/login" method="POST" class="login-form">
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <label id="identifier-label">Username *</label>
-
-        <input type="text"
-               name="identifier"
-               id="login-id"
-               placeholder="username"
-               required>
-
-        <label>Password *</label>
-        <input type="password" name="password" placeholder="********" required>
-
-        <div class="role-select">
-
-            <label>
-                <input type="radio" name="role" value="user" checked onclick="changeLoginType()"> User
-            </label>
-
-            <label>
-                <input type="radio" name="role" value="seller" onclick="changeLoginType()"> Service provider
-            </label>
-
-            <label>
-                <input type="radio" name="role" value="admin" onclick="changeLoginType()"> Admin
-            </label>
-
+    <form action="/login" method="POST">
+        <div class="input-group">
+            <label id="identifier-label" style="font-weight: 600; color: var(--primary);">Username</label>
+            <input type="text" 
+                   name="identifier" 
+                   id="login-id" 
+                   class="form-input-field" 
+                   placeholder="Enter your username" 
+                   required>
         </div>
 
-        <button type="submit" class="login-btn">Log in</button>
+        <div class="input-group">
+            <label style="font-weight: 600; color: var(--primary);">Password</label>
+            <input type="password" 
+                   name="password" 
+                   class="form-input-field" 
+                   placeholder="********" 
+                   required>
+        </div>
 
+        <div style="background: var(--bg-darker); padding: 15px; border-radius: 8px; display: flex; justify-content: space-around; margin: 20px 0; border: 1px solid var(--border-color);">
+            <label style="cursor: pointer; font-size: 14px;">
+                <input type="radio" name="role" value="user" checked onclick="changeLoginType()"> User
+            </label>
+            <label style="cursor: pointer; font-size: 14px;">
+                <input type="radio" name="role" value="seller" onclick="changeLoginType()"> Provider
+            </label>
+            <label style="cursor: pointer; font-size: 14px;">
+                <input type="radio" name="role" value="admin" onclick="changeLoginType()"> Admin
+            </label>
+        </div>
+
+        <button type="submit" class="form-submit-btn">Sign In</button>
     </form>
 
     {% if error %}
-        <p class="error">{{ error }}</p>
+        <p style="color: #fca5a5; text-align: center; margin-top: 15px; font-weight: 600;">{{ error }}</p>
     {% endif %}
-
+    
+    <p style="text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-light);">
+        New to ServiceSathi? <a href="/register" style="color: var(--primary); text-decoration: none; font-weight: 600;">Create account</a>
+    </p>
 </div>
 
 <script>
 function changeLoginType() {
-
     const role = document.querySelector('input[name="role"]:checked').value;
     const inputField = document.getElementById("login-id");
     const label = document.getElementById("identifier-label");
 
     if (role === "admin") {
-        inputField.placeholder = "admin email";
-        label.innerText = "Admin Email *";
+        inputField.placeholder = "Enter admin email";
+        label.innerText = "Admin Email";
     } else {
-        inputField.placeholder = "username";
-        label.innerText = "Username *";
+        inputField.placeholder = "Enter your username";
+        label.innerText = "Username";
     }
 }
 </script>
-
 {% endblock %}
