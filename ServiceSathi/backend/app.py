@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv  
 from datetime import date, datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-import google.genai as genai
+from groq import Groq
 import re
 from flask import jsonify
 import cloudinary
@@ -344,7 +344,6 @@ def delete_category(cat_id):
         
         cursor.execute("DELETE FROM Services WHERE category_id = ?", (cat_id,))
         
-        # 4. delete the category itself
         cursor.execute("DELETE FROM Categories WHERE category_id = ?", (cat_id,))
         
         conn.commit()
@@ -569,8 +568,8 @@ def chat():
 
         user_message = request.form.get('message', '').strip()
         
-        if not os.getenv("GEMINI_API_KEY"):
-            error = "Gemini API Key is missing. Please configure it in .env file."
+        if not os.getenv("GROQ_API_KEY"):
+            error = "Groq API Key is missing. Please configure it in .env file."
         elif user_message:
             if 'chat_history' not in session:
                 session['chat_history'] = []
@@ -579,7 +578,6 @@ def chat():
             session.modified = True
             
             try:
-                client = genai.Client()
                 from saathi_bot import search_services_by_category
                 
                 conn = get_db_connection()
@@ -597,27 +595,23 @@ def chat():
                     db_context += f"- [KEY: {i}] Category: {p.category_name}, Provider: {p.name}, Price: Rs. {p.price_per_hour}, Rating: {p.average_rating}, Desc: {p.description}\n"
                 
                 system_instruction = f"""You are Saathi Bot, the official AI assistant for ServiceSathi.
-Do NOT use ANY markdown formatting whatsoever in your responses. 
-DATABASE CONTEXT:
-{db_context}
-"""
-                history_payload = []
-                for msg in session['chat_history'][-6:-1]:
-                    role = 'user' if msg['role'] == 'user' else 'model'
-                    history_payload.append({'role': role, 'parts': [msg['content']]})
-
-                chat_session = client.chats.create(
-                    model="gemini-2.0-flash",
-                    config={"system_instruction": system_instruction, "temperature": 0.3}
+                Do NOT use ANY markdown formatting whatsoever in your responses. 
+                DATABASE CONTEXT:
+                {db_context}
+                """
+                
+                groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+                completion = groq_client.chat.completions.create(
+                   model="llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_message}
+                    ],
+                    temperature=0.3
                 )
+                bot_response = completion.choices[0].message.content
+                print(f"✓ Groq AI Response: {bot_response[:80]}...")
                 
-                for msg in history_payload:
-                    chat_session._history.append(msg)
-                    
-                response = chat_session.send_message(user_message)
-                bot_response = response.text
-                
-                # Check for [KEYS: ...] in Gemini response
                 match = re.search(r'\[KEYS:\s*(.*?)\]', bot_response)
                 if match:
                     ids_str = match.group(1)
@@ -629,10 +623,13 @@ DATABASE CONTEXT:
                             bot_providers.append((p.name, p.description, float(p.average_rating) if p.average_rating else 0.0, float(p.price_per_hour), p.experience_years, p.seller_id, p.profile_picture))
 
             except Exception as e:
-                print(f"Gemini API Error: {str(e)}. Falling back to local NLP.")
+                print(f"❌ Groq API Error: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                print(f"Falling back to local NLP.")
                 msg_lower = user_message.lower()
                 matched_ids = []
-                import re
+              
                 
                 price_match = re.search(r'(under|below|less than|max|within)\s*(\d+)', msg_lower)
                 max_price = float(price_match.group(2)) if price_match else float('inf')
